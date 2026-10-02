@@ -1,0 +1,113 @@
+<?php
+
+namespace Webkul\Inventory\Filament\Clusters\Operations\Resources;
+
+use Filament\Resources\Pages\Page;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Webkul\Inventory\Enums\OperationType;
+use Webkul\Inventory\Filament\Clusters\Operations;
+use Webkul\Inventory\Filament\Clusters\Operations\Resources\InternalResource\Pages\CreateInternal;
+use Webkul\Inventory\Filament\Clusters\Operations\Resources\InternalResource\Pages\EditInternal;
+use Webkul\Inventory\Filament\Clusters\Operations\Resources\InternalResource\Pages\ListInternals;
+use Webkul\Inventory\Filament\Clusters\Operations\Resources\InternalResource\Pages\ManageMoves;
+use Webkul\Inventory\Filament\Clusters\Operations\Resources\InternalResource\Pages\ViewInternal;
+use Webkul\Inventory\Filament\Clusters\Operations\Resources\InternalResource\Tables\InternalsTable;
+use Webkul\Inventory\Models\InternalTransfer;
+use Webkul\Inventory\Settings\WarehouseSettings;
+
+class InternalResource extends Resource
+{
+    protected static ?string $model = InternalTransfer::class;
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrows-right-left';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $isGloballySearchable = true;
+
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $cluster = Operations::class;
+
+    public static function isDiscovered(): bool
+    {
+        if (app()->runningInConsole()) {
+            return true;
+        }
+
+        return settings(WarehouseSettings::class)->enable_locations;
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('inventories::filament/clusters/operations/resources/internal.navigation.title');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('inventories::filament/clusters/operations/resources/internal.navigation.title');
+    }
+
+    public static function getNavigationGroup(): string
+    {
+        return __('inventories::filament/clusters/operations/resources/internal.navigation.group');
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'origin'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            __('inventories::filament/clusters/operations/resources/internal.global-search.origin') => $record->origin ?? '—',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->whereHas('operationType', function (Builder $query) {
+            $query->where('type', OperationType::INTERNAL);
+        });
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return OperationResource::form($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return InternalsTable::configure($table);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return OperationResource::infolist($schema);
+    }
+
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        return $page->generateNavigationItems([
+            ViewInternal::class,
+            EditInternal::class,
+            ManageMoves::class,
+        ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index'  => ListInternals::route('/'),
+            'create' => CreateInternal::route('/create'),
+            'view'   => ViewInternal::route('/{record}/view'),
+            'edit'   => EditInternal::route('/{record}/edit'),
+            'moves'  => ManageMoves::route('/{record}/moves'),
+        ];
+    }
+}

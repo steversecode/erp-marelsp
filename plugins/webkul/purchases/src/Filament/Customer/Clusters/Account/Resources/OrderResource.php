@@ -1,0 +1,35 @@
+<?php
+
+namespace Webkul\Purchase\Filament\Customer\Clusters\Account\Resources;
+
+use Filament\Http\Middleware\Authenticate;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
+use Webkul\Purchase\Filament\Customer\Clusters\Account\Resources\OrderResource\Schemas\OrderInfolist;
+use Webkul\Purchase\Filament\Customer\Clusters\Account\Resources\OrderResource\Tables\OrdersTable;
+use Webkul\Purchase\Models\Order;
+use Webkul\Website\Filament\Customer\Clusters\Account;
+
+abstract class OrderResource extends Resource
+{
+    protected static ?string $model = Order::class;
+
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?string $cluster = Account::class;
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static string|array $routeMiddleware = [Authenticate::class];
+
+    public static function table(Table $table): Table
+    {
+        return OrdersTable::configure($table);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return OrderInfolist::configure($schema, static::class);
+    }
+}

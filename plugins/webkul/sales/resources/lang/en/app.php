@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'navigation' => [
+        'settings' => [
+            'label' => 'Settings',
+            'group' => 'Sales',
+        ],
+    ],
+
+    'documents' => [
+        'title'                 => ':document ID #:name',
+        'date'                  => ':document Date',
+        'expiration-date'       => 'Expiration Date',
+        'product'               => 'Product',
+        'quantity'              => 'Quantity',
+        'unit'                  => 'Unit',
+        'unit-price'            => 'Unit Price',
+        'amount'                => 'Amount',
+        'options'               => 'Options',
+        'subtotal'              => 'Subtotal',
+        'tax'                   => 'Tax',
+        'discount-percentage'   => 'Disc. %',
+        'grand-total'           => 'Grand Total',
+        'payment-information'   => 'Payment Information',
+        'payment-communication' => 'Payment Communication',
+        'account-details'       => 'on this account details:',
+        'terms-and-conditions'  => 'Terms & Conditions',
+    ],
+];
