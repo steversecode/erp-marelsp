@@ -52,7 +52,7 @@ class ProductForm
 
     public static function generalSection(): Section
     {
-        return Section::make(__('products::filament/resources/product.form.sections.general.title', 'General Information'))
+        return Section::make(__('products::filament/resources/product.form.sections.general.title'))
             ->schema([
                 TextInput::make('name')
                     ->label(__('products::filament/resources/product.form.sections.general.fields.name'))

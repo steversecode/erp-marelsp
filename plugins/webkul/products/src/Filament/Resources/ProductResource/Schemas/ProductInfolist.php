@@ -115,7 +115,7 @@ class ProductInfolist
 
     public static function settingsSection(): Section
     {
-        return Section::make(__('products::filament/resources/product.form.sections.settings.title', 'Settings'))
+        return Section::make(__('products::filament/resources/product.form.sections.settings.title'))
             ->schema([
                 TextEntry::make('type')
                     ->label(__('products::filament/resources/product.infolist.sections.settings.entries.type'))
