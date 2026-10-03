@@ -16,6 +16,27 @@ class ListPlugins extends ListRecords
 {
     protected static string $resource = PluginResource::class;
 
+    public function mount(): void
+    {
+        parent::mount();
+
+        $this->autoSyncMissingPlugins();
+    }
+
+    protected function autoSyncMissingPlugins(): void
+    {
+        try {
+            $packages = Plugin::getAllPluginPackages();
+            $existingCount = Plugin::whereIn('name', array_keys($packages))->count();
+
+            if ($existingCount < count($packages)) {
+                $this->syncPlugins(notify: false);
+            }
+        } catch (Throwable $e) {
+            // Silently continue
+        }
+    }
+
     public function getTitle(): string|Htmlable
     {
         return __('plugin-manager::filament/resources/plugin/pages/list-plugins.navigation.title');
@@ -65,7 +86,7 @@ class ListPlugins extends ListRecords
         ];
     }
 
-    protected function syncPlugins(): void
+    protected function syncPlugins(bool $notify = true): void
     {
         try {
             $synced = collect(Plugin::getAllPluginPackages())
@@ -99,23 +120,27 @@ class ListPlugins extends ListRecords
                 })
                 ->count();
 
-            Notification::make()
-                ->title(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.success.title'))
-                ->body(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.success.body', [
-                    'count' => $synced,
-                ]))
-                ->success()
-                ->send();
+            if ($notify) {
+                Notification::make()
+                    ->title(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.success.title'))
+                    ->body(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.success.body', [
+                        'count' => $synced,
+                    ]))
+                    ->success()
+                    ->send();
+            }
         } catch (Throwable $e) {
             report($e);
 
-            Notification::make()
-                ->title(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.error.title'))
-                ->body(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.error.body', [
-                    'error' => $e->getMessage(),
-                ]))
-                ->danger()
-                ->send();
+            if ($notify) {
+                Notification::make()
+                    ->title(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.error.title'))
+                    ->body(__('plugin-manager::filament/resources/plugin/pages/list-plugins.header-actions.sync.notification.error.body', [
+                        'error' => $e->getMessage(),
+                    ]))
+                    ->danger()
+                    ->send();
+            }
         }
     }
 }

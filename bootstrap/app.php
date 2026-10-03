@@ -13,6 +13,30 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webkul\Account\Exceptions\MissingJournalException;
 
+// Fallback autoloader for custom plugins
+spl_autoload_register(function ($class) {
+    $prefixes = [
+        'Webkul\\ProductPack\\'     => dirname(__DIR__).'/plugins/webkul/product-packs/src/',
+        'Webkul\\SaleProductPack\\' => dirname(__DIR__).'/plugins/webkul/sale-product-packs/src/',
+    ];
+
+    foreach ($prefixes as $prefix => $baseDir) {
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) !== 0) {
+            continue;
+        }
+
+        $relativeClass = substr($class, $len);
+        $file = $baseDir.str_replace('\\', '/', $relativeClass).'.php';
+
+        if (file_exists($file)) {
+            require_once $file;
+
+            return;
+        }
+    }
+});
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

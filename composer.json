@@ -51,7 +51,9 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Webkul\\ProductPack\\": "plugins/webkul/product-packs/src/",
+            "Webkul\\SaleProductPack\\": "plugins/webkul/sale-product-packs/src/"
         }
     },
     "autoload-dev": {
