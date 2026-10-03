@@ -19,6 +19,7 @@ return [
         'component_product'            => 'Component Product',
         'quantity'                     => 'Quantity',
         'unit_price'                   => 'Unit Price',
+        'pack_total_summary'           => 'Total Components Value',
     ],
     'actions' => [
         'add_component' => 'Add Component',

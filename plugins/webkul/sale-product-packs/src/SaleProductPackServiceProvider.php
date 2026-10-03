@@ -48,8 +48,19 @@ class SaleProductPackServiceProvider extends PackageServiceProvider
         OrderLine::observe(OrderLinePackObserver::class);
     }
 
+    public function boot(): void
+    {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'sale_product_packs');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'sale-product-packs');
+
+        parent::boot();
+    }
+
     public function packageRegistered(): void
     {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'sale_product_packs');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'sale-product-packs');
+
         Panel::configureUsing(function (Panel $panel): void {
             $panel->plugin(SaleProductPackPlugin::make());
         });

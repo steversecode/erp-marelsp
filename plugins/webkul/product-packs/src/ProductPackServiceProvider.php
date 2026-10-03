@@ -67,8 +67,19 @@ class ProductPackServiceProvider extends PackageServiceProvider
         ProductSchemaRegistry::eagerLoad(['packLines', 'packLines.product']);
     }
 
+    public function boot(): void
+    {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'product_packs');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'product-packs');
+
+        parent::boot();
+    }
+
     public function packageRegistered(): void
     {
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'product_packs');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'product-packs');
+
         Panel::configureUsing(function (Panel $panel): void {
             $panel->plugin(ProductPackPlugin::make());
         });

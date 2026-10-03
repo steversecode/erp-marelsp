@@ -19,6 +19,7 @@ return [
         'component_product'            => 'Produk Komponen',
         'quantity'                     => 'Jumlah / Qty',
         'unit_price'                   => 'Harga Satuan',
+        'pack_total_summary'           => 'Estimasi Total Nilai Komponen',
     ],
     'actions' => [
         'add_component' => 'Tambah Komponen',
