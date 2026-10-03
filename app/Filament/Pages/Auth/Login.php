@@ -8,6 +8,8 @@ use Illuminate\Contracts\Support\Htmlable;
 
 class Login extends BaseLogin
 {
+    protected string $view = 'filament.pages.auth.login';
+
     public function getTitle(): string|Htmlable
     {
         return 'Masuk - ERP Marel';
@@ -15,7 +17,7 @@ class Login extends BaseLogin
 
     public function getHeading(): string|Htmlable
     {
-        return 'Sign in';
+        return 'Selamat Datang';
     }
 
     public function getSubheading(): string|Htmlable|null
