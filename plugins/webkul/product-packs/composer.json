@@ -1,0 +1,25 @@
+{
+    "name": "webkul/product-packs",
+    "description": "Product Pack management plugin for Aureus ERP",
+    "authors": [
+        {
+            "name": "Aureus ERP",
+            "email": "support@aureuserp.in"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webkul\\ProductPack\\ProductPackServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Webkul\\ProductPack\\": "src/",
+            "Webkul\\ProductPack\\Database\\Factories\\": "database/factories/",
+            "Webkul\\ProductPack\\Database\\Seeders\\": "database/seeders/"
+        }
+    }
+}

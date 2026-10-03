@@ -1,0 +1,25 @@
+{
+    "name": "webkul/sale-product-packs",
+    "description": "Sales Order integration for Product Packs in Aureus ERP",
+    "authors": [
+        {
+            "name": "Aureus ERP",
+            "email": "support@aureuserp.in"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webkul\\SaleProductPack\\SaleProductPackServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Webkul\\SaleProductPack\\": "src/",
+            "Webkul\\SaleProductPack\\Database\\Factories\\": "database/factories/",
+            "Webkul\\SaleProductPack\\Database\\Seeders\\": "database/seeders/"
+        }
+    }
+}

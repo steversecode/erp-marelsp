@@ -25,6 +25,8 @@ use Webkul\Project\ProjectServiceProvider;
 use Webkul\Purchase\PurchaseServiceProvider;
 use Webkul\Recruitment\RecruitmentServiceProvider;
 use Webkul\Sale\SaleServiceProvider;
+use Webkul\ProductPack\ProductPackServiceProvider;
+use Webkul\SaleProductPack\SaleProductPackServiceProvider;
 use Webkul\Security\SecurityServiceProvider;
 use Webkul\Support\SupportServiceProvider;
 use Webkul\TableViews\TableViewsServiceProvider;
@@ -52,10 +54,12 @@ return [
     PartnerServiceProvider::class,
     PaymentServiceProvider::class,
     ProductServiceProvider::class,
+    ProductPackServiceProvider::class,
     ProjectServiceProvider::class,
     PurchaseServiceProvider::class,
     RecruitmentServiceProvider::class,
     SaleServiceProvider::class,
+    SaleProductPackServiceProvider::class,
     SecurityServiceProvider::class,
     SupportServiceProvider::class,
     TableViewsServiceProvider::class,
@@ -65,3 +69,4 @@ return [
     WebsiteServiceProvider::class,
     PluginManagerServiceProvider::class,
 ];
+
