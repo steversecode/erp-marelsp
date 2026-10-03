@@ -60,13 +60,13 @@
     <div class="msp-auth-right">
         <!-- Header -->
         <header class="msp-right-header">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
                 <img 
                     src="{{ asset('images/logo-marel.webp') }}" 
                     alt="Logo PT Marel Sukses Pratama"
-                    style="height: 2.25rem; width: auto; object-fit: contain;"
+                    class="msp-brand-logo"
                 />
-                <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; flex-direction: column; min-width: 0;">
                     <span class="msp-brand-title">PT MAREL SUKSES PRATAMA</span>
                     <span class="msp-brand-sub">Enterprise Resource Planning</span>
                 </div>
@@ -74,9 +74,9 @@
 
             <a 
                 href="mailto:it@erpmsp.com" 
-                style="display: flex; align-items: center; gap: 0.375rem; font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-decoration: none; padding: 0.375rem 0.75rem; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.1); transition: color 0.15s ease;"
+                class="msp-help-link"
             >
-                <svg style="width: 0.875rem; height: 0.875rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style="width: 0.875rem; height: 0.875rem; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
                 <span>Bantuan</span>
@@ -105,7 +105,7 @@
                 x-on:submit="if (isProcessing) $event.preventDefault()"
                 x-on:form-processing-started="isProcessing = true"
                 x-on:form-processing-finished="isProcessing = false"
-                style="display: flex; flex-direction: column; gap: 1.25rem;"
+                style="display: flex; flex-direction: column; gap: 1rem;"
             >
                 {{ $this->form }}
 

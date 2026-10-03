@@ -1,6 +1,6 @@
 <style>
     /* ==========================================================================
-       SPLIT-SCREEN 2-COLUMN AUTH STYLING (FILAMENT ADMIN PANEL)
+       SPLIT-SCREEN AUTH STYLING & FULL RESPONSIVE FIXES
        PT Marel Sukses Pratama
        ========================================================================== */
 
@@ -16,23 +16,25 @@
     }
 
     /* Reset Filament Simple Wrapper for 100% Full-bleed Split Screen */
-    body.fi-body {
+    html, body.fi-body {
         margin: 0 !important;
         padding: 0 !important;
-        overflow-x: hidden !important;
         background-color: #0b0f19 !important;
+        -webkit-text-size-adjust: 100%;
     }
 
     .fi-simple-layout {
         position: relative !important;
         min-height: 100vh !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
+        min-height: 100dvh !important;
+        width: 100% !important;
+        max-width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         display: block !important;
         background: transparent !important;
-        overflow: hidden !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
     }
 
     .fi-simple-layout::before {
@@ -44,6 +46,8 @@
         z-index: 1 !important;
         width: 100% !important;
         max-width: 100% !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
         margin: 0 !important;
         padding: 0 !important;
     }
@@ -51,6 +55,8 @@
     .fi-simple-main {
         width: 100% !important;
         max-width: 100% !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
         margin: 0 !important;
         padding: 0 !important;
         background: transparent !important;
@@ -67,12 +73,13 @@
         display: none !important;
     }
 
-    /* Container Split Layout */
+    /* Master Container */
     .msp-auth-wrapper {
         display: flex;
         min-height: 100vh;
+        min-height: 100dvh;
         width: 100%;
-        font-family: inherit;
+        overflow-x: hidden;
     }
 
     /* Left Column (Desktop Only Visual) */
@@ -189,14 +196,18 @@
         flex-direction: column;
         justify-content: space-between;
         min-height: 100vh;
+        min-height: 100dvh;
         width: 50%;
-        overflow-y: auto;
+        overflow-y: visible;
         transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     @media (max-width: 1023px) {
         .msp-auth-right {
             width: 100% !important;
+            min-height: 100vh !important;
+            min-height: 100dvh !important;
+            overflow: visible !important;
         }
     }
 
@@ -217,13 +228,28 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1.5rem 2rem;
+        padding: 1.5rem 2.5rem;
+        flex-shrink: 0;
+        gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+        .msp-right-header {
+            padding: 1rem 1.25rem !important;
+            gap: 0.5rem !important;
+        }
+    }
+
+    .msp-brand-logo {
+        height: 2.25rem;
+        width: auto;
+        object-fit: contain;
         flex-shrink: 0;
     }
 
-    @media (min-width: 1280px) {
-        .msp-right-header {
-            padding: 1.75rem 3rem;
+    @media (max-width: 640px) {
+        .msp-brand-logo {
+            height: 1.875rem !important;
         }
     }
 
@@ -233,6 +259,13 @@
         letter-spacing: 0.025em;
         text-transform: uppercase;
         line-height: 1.2;
+    }
+
+    @media (max-width: 640px) {
+        .msp-brand-title {
+            font-size: 0.75rem !important;
+            letter-spacing: 0.01em !important;
+        }
     }
 
     html.dark .msp-brand-title, .dark .msp-brand-title { color: #ffffff !important; }
@@ -245,16 +278,58 @@
         margin-top: 0.125rem;
     }
 
+    @media (max-width: 480px) {
+        .msp-brand-sub {
+            display: none !important;
+        }
+    }
+
+    .msp-help-link {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-decoration: none;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 640px) {
+        .msp-help-link {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.6875rem !important;
+            gap: 0.25rem !important;
+        }
+    }
+
+    .msp-help-link:hover {
+        color: #60a5fa;
+        border-color: rgba(96, 165, 250, 0.3);
+    }
+
     /* Form Container */
     .msp-form-center {
         flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 2rem;
+        padding: 2rem 2.5rem;
         max-width: 440px;
         width: 100%;
         margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    @media (max-width: 640px) {
+        .msp-form-center {
+            padding: 1.25rem 1.25rem 1.75rem 1.25rem !important;
+            max-width: 100% !important;
+        }
     }
 
     .msp-form-heading {
@@ -265,6 +340,13 @@
         margin-bottom: 0.5rem;
     }
 
+    @media (max-width: 640px) {
+        .msp-form-heading {
+            font-size: 1.625rem !important; /* 26px */
+            margin-bottom: 0.375rem !important;
+        }
+    }
+
     html.dark .msp-form-heading, .dark .msp-form-heading { color: #ffffff !important; }
     html:not(.dark) .msp-form-heading { color: #0f172a !important; }
 
@@ -272,6 +354,14 @@
         font-size: 0.875rem;
         line-height: 1.5;
         margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+        .msp-form-subheading {
+            font-size: 0.8125rem !important; /* 13px */
+            margin-bottom: 1.125rem !important;
+            line-height: 1.4 !important;
+        }
     }
 
     html.dark .msp-form-subheading, .dark .msp-form-subheading { color: #94a3b8 !important; }
@@ -284,6 +374,7 @@
         font-weight: 600 !important;
         letter-spacing: -0.01em !important;
         display: inline-block !important;
+        margin-bottom: 0.25rem !important;
     }
 
     html.dark .fi-fo-field-wrp-label label,
@@ -302,6 +393,20 @@
     .fi-input-wrp {
         border-radius: 0.75rem !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    /* Prevent mobile browser zoom by keeping font-size at least 16px on mobile */
+    .fi-input-wrp input {
+        font-size: 16px !important;
+        padding-top: 0.6875rem !important;
+        padding-bottom: 0.6875rem !important;
+        box-sizing: border-box !important;
+    }
+
+    @media (min-width: 641px) {
+        .fi-input-wrp input {
+            font-size: 0.875rem !important;
+        }
     }
 
     /* Light mode input */
@@ -325,7 +430,6 @@
     html:not(.dark) .fi-input-wrp input {
         color: #0f172a !important;
         background: transparent !important;
-        font-size: 0.875rem !important;
     }
 
     html:not(.dark) .fi-input-wrp input::placeholder {
@@ -357,7 +461,6 @@
     .dark .fi-input-wrp input {
         color: #ffffff !important;
         background: transparent !important;
-        font-size: 0.875rem !important;
     }
 
     html.dark .fi-input-wrp input::placeholder,
@@ -409,7 +512,7 @@
     .fi-link,
     a.fi-link {
         color: #0070F2 !important;
-        font-size: 0.8125rem !important;
+        font-size: 0.75rem !important;
         font-weight: 500 !important;
         text-decoration: none !important;
         transition: color 0.15s ease !important;
@@ -449,6 +552,13 @@
         margin-top: 0.625rem;
     }
 
+    @media (max-width: 640px) {
+        .msp-submit-btn {
+            height: 3rem !important;
+            font-size: 0.8125rem !important;
+        }
+    }
+
     .msp-submit-btn:hover {
         background: linear-gradient(135deg, #0d7cfd 0%, #0060d4 100%);
         box-shadow: 0 6px 22px -2px rgba(0, 112, 242, 0.65);
@@ -463,9 +573,17 @@
     /* Footer */
     .msp-right-footer {
         padding: 1.25rem 2rem;
+        padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
         text-align: center;
         flex-shrink: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    @media (max-width: 640px) {
+        .msp-right-footer {
+            padding: 1rem 1.25rem !important;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+        }
     }
 
     html:not(.dark) .msp-right-footer {
@@ -476,5 +594,6 @@
         font-size: 0.6875rem;
         color: #94a3b8;
         font-weight: 500;
+        margin: 0;
     }
 </style>
