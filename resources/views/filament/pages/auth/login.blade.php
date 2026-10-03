@@ -105,7 +105,7 @@
                     </p>
                 </div>
 
-                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE, scopes: $this->getRenderHookScopes()) }}
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE) }}
 
                 <!-- Filament Livewire Form -->
                 <form
@@ -120,14 +120,22 @@
                     {{ $this->form }}
 
                     <div class="pt-1">
-                        <x-filament::actions
-                            :actions="$this->getCachedFormActions()"
-                            :full-width="$this->hasFullWidthFormActions()"
-                        />
+                        <button
+                            type="submit"
+                            wire:loading.attr="disabled"
+                            class="w-full h-12 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                            <svg wire:loading wire:target="authenticate" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span wire:loading.remove wire:target="authenticate">Masuk ke Sistem</span>
+                            <span wire:loading wire:target="authenticate">Memproses...</span>
+                        </button>
                     </div>
                 </form>
 
-                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, scopes: $this->getRenderHookScopes()) }}
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::AUTH_LOGIN_FORM_AFTER) }}
             </div>
         </div>
 

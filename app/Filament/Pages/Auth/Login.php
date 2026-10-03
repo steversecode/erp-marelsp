@@ -36,4 +36,19 @@ class Login extends BaseLogin
         return parent::getPasswordFormComponent()
             ->placeholder('••••••••');
     }
+
+    public function getCachedFormActions(): array
+    {
+        return [];
+    }
+
+    public function hasFullWidthFormActions(): bool
+    {
+        return true;
+    }
+
+    public function getRenderHookScopes(): array
+    {
+        return [];
+    }
 }
