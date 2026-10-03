@@ -17,7 +17,7 @@ class Login extends BaseLogin
 
     public function getHeading(): string|Htmlable
     {
-        return 'Selamat Datang';
+        return 'Sign in';
     }
 
     public function getSubheading(): string|Htmlable|null
@@ -34,7 +34,7 @@ class Login extends BaseLogin
     protected function getPasswordFormComponent(): Component
     {
         return parent::getPasswordFormComponent()
-            ->placeholder('••••••••');
+            ->placeholder('Masukkan kata sandi');
     }
 
     public function getCachedFormActions(): array
