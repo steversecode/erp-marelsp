@@ -3,6 +3,7 @@
 namespace Webkul\Inventory\Filament\Clusters\Products\Resources;
 
 use BackedEnum;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -29,6 +30,8 @@ class PackageResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
     protected static ?string $cluster = Products::class;
+
+    protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static ?string $recordTitleAttribute = 'name';
 

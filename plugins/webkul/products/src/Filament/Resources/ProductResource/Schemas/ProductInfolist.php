@@ -16,32 +16,27 @@ class ProductInfolist
 {
     public static function configure(Schema $schema): Schema
     {
-        $leftGroup = array_merge(
+        $mainGroup = array_merge(
             [static::generalSection()],
             Registry::renderInfolist('left.general.after'),
-            [static::mediaSection()],
+            [static::settingsSection()],
+            [static::pricingSection()],
             Registry::hasInfolistSlot('left.inventory')
                 ? Registry::renderInfolist('left.inventory')
                 : [static::inventorySection()],
+            [static::mediaSection()],
             Registry::renderInfolist('left.append'),
-        );
-
-        $rightGroup = array_merge(
-            [static::recordInformationSection(), static::settingsSection(), static::pricingSection()],
             Registry::renderInfolist('right.append'),
+            [static::recordInformationSection()],
         );
 
         return $schema
             ->components([
                 Group::make()
-                    ->schema($leftGroup)
-                    ->columnSpan(['lg' => 2]),
-
-                Group::make()
-                    ->schema($rightGroup)
-                    ->columnSpan(['lg' => 1]),
+                    ->schema($mainGroup)
+                    ->columnSpanFull(),
             ])
-            ->columns(3);
+            ->columns(1);
     }
 
     public static function generalSection(): Section
@@ -114,12 +109,13 @@ class ProductInfolist
                     ->label(__('products::filament/resources/product.infolist.sections.record-information.entries.updated-at'))
                     ->dateTime()
                     ->icon('heroicon-o-calendar'),
-            ]);
+            ])
+            ->columns(['default' => 1, 'sm' => 3]);
     }
 
     public static function settingsSection(): Section
     {
-        return Section::make(__('products::filament/resources/product.infolist.sections.settings.title'))
+        return Section::make(__('products::filament/resources/product.form.sections.settings.title', 'Settings'))
             ->schema([
                 TextEntry::make('type')
                     ->label(__('products::filament/resources/product.infolist.sections.settings.entries.type'))
@@ -145,7 +141,8 @@ class ProductInfolist
                     ->label(__('products::filament/resources/product.infolist.sections.settings.entries.company'))
                     ->placeholder('—')
                     ->icon('heroicon-o-building-office'),
-            ]);
+            ])
+            ->columns(['default' => 1, 'sm' => 2, 'lg' => 3]);
     }
 
     public static function pricingSection(): Section
@@ -163,6 +160,7 @@ class ProductInfolist
                     ->placeholder('—')
                     ->money()
                     ->suffix(fn ($record): string => $record->uomPO ? ' / '.$record->uomPO->name : ''),
-            ]);
+            ])
+            ->columns(['default' => 1, 'md' => 2]);
     }
 }
