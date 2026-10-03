@@ -20,6 +20,8 @@ class ProductPackServiceProvider extends PackageServiceProvider
     public function configureCustomPackage(Package $package): void
     {
         $package->name(static::$name)
+            ->icon('product-packs')
+            ->isExtra()
             ->hasTranslations()
             ->hasMigrations([
                 '2026_10_03_000001_add_pack_fields_to_products_products_table',

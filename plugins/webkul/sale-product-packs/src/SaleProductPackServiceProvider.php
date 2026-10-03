@@ -18,6 +18,8 @@ class SaleProductPackServiceProvider extends PackageServiceProvider
     public function configureCustomPackage(Package $package): void
     {
         $package->name(static::$name)
+            ->icon('sale-product-packs')
+            ->isExtra()
             ->hasMigrations([
                 '2026_10_03_000003_add_pack_columns_to_sales_order_lines_table',
             ])

@@ -1,0 +1,23 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0.5" y="0.5" width="63" height="63" rx="12.5" fill="white"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="12.5" stroke="#DCE0E5"/>
+  
+  <!-- Base Pack Box -->
+  <path d="M14 26L28 19L42 26L28 33L14 26Z" fill="#3B82F6"/>
+  <path d="M14 26L28 33V47L14 40V26Z" fill="#1D4ED8"/>
+  <path d="M28 33L42 26V40L28 47V33Z" fill="#2563EB"/>
+  
+  <!-- Box Gold Ribbon -->
+  <path d="M26.5 19.8L29.5 21.2V46.3L26.5 44.9V19.8Z" fill="#FDB421"/>
+  
+  <!-- Sale Price Tag overlay -->
+  <g filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.15))">
+    <path d="M36 29L47 18C47.8 17.2 49.2 17.2 50 18L54 22C54.8 22.8 54.8 24.2 54 25L43 36L33 36L33 26L36 29Z" fill="#FC5B1C"/>
+    <circle cx="49" cy="23" r="2" fill="white"/>
+    
+    <!-- Dollar / Percent Symbol inside Tag -->
+    <path d="M37 32L41 28" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="38" cy="28.5" r="0.8" fill="white"/>
+    <circle cx="40" cy="31.5" r="0.8" fill="white"/>
+  </g>
+</svg>

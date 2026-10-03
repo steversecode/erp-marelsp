@@ -22,6 +22,8 @@ class Package extends BasePackage
 
     public bool $isCore = false;
 
+    public bool $isExtra = false;
+
     public bool $runsSettings = false;
 
     public array $settingFileNames = [];
@@ -59,6 +61,13 @@ class Package extends BasePackage
     public function isCore(bool $isCore = true): static
     {
         $this->isCore = $isCore;
+
+        return $this;
+    }
+
+    public function isExtra(bool $isExtra = true): static
+    {
+        $this->isExtra = $isExtra;
 
         return $this;
     }

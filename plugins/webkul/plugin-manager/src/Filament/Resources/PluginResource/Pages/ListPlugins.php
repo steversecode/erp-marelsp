@@ -26,11 +26,9 @@ class ListPlugins extends ListRecords
         $extra = [];
 
         foreach (Plugin::getAllPluginPackages() as $key => $package) {
-            if ($package->icon) {
-                continue;
+            if ($package->isExtra || ! $package->icon || in_array($key, ['product-packs', 'sale-product-packs'], true)) {
+                $extra[] = $key;
             }
-
-            $extra[] = $key;
         }
 
         return [
@@ -72,7 +70,9 @@ class ListPlugins extends ListRecords
         try {
             $synced = collect(Plugin::getAllPluginPackages())
                 ->filter(function ($package, $name) {
-                    $composerPath = $package->basePath('composer.json');
+                    $composerPath = file_exists($package->basePath('composer.json'))
+                        ? $package->basePath('composer.json')
+                        : $package->basePath('../composer.json');
 
                     $composer = file_exists($composerPath)
                         ? json_decode(file_get_contents($composerPath), true) ?? []
