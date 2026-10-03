@@ -133,54 +133,50 @@
                             style="top: 4rem; height: calc(100vh - 4rem); height: calc(100dvh - 4rem);"
                             x-on:click.self="closeMenu()"
                         >
-                            {{-- Top Action Bar --}}
-                            <div class="w-full flex items-center justify-between px-6 py-4 sm:px-10 z-10 shrink-0" x-on:click.self="closeMenu()">
-                                {{-- Left Brand/Section Indicator --}}
-                                <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider min-w-[80px]">
-                                    <x-filament::icon
-                                        icon="heroicon-o-squares-2x2"
-                                        class="w-4 h-4 text-slate-400 dark:text-slate-500"
-                                    />
-                                    <span class="hidden sm:inline">{{ __('Aplikasi') }}</span>
-                                </div>
-
-                                {{-- Centered Odoo Search Input --}}
-                                <div class="relative w-full max-w-sm sm:max-w-md mx-4">
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                                        <svg class="h-4 w-4 text-slate-400 dark:text-white/60" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            {{-- Centered Odoo Search Bar Header --}}
+                            <div class="odoo-search-container" x-on:click.self="closeMenu()">
+                                <div class="odoo-search-wrapper">
+                                    {{-- Search Icon --}}
+                                    <div class="odoo-search-icon-box">
+                                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                                         </svg>
                                     </div>
+
+                                    {{-- Search Input --}}
                                     <input
                                         type="text"
                                         x-ref="odooSearch"
                                         x-model="search"
                                         x-on:keydown.enter.prevent="selectFirstMatch()"
                                         placeholder="Cari aplikasi..."
-                                        class="odoo-search-input w-full rounded-full py-2.5 pl-10 pr-9 text-sm transition-all duration-200 focus:outline-none"
+                                        class="odoo-search-input"
                                     />
-                                    <button
-                                        type="button"
-                                        x-show="search.length > 0"
-                                        x-on:click="search = ''; $refs.odooSearch.focus()"
-                                        class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-white/60 dark:hover:text-white"
-                                    >
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
 
-                                {{-- Right Close Button --}}
-                                <div class="min-w-[80px] flex justify-end">
-                                    <button
-                                        type="button"
-                                        x-on:click="closeMenu()"
-                                        class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium bg-slate-200/80 hover:bg-slate-300 text-slate-700 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white/80 transition"
-                                    >
-                                        <span class="hidden sm:inline">Tutup</span>
-                                        <kbd class="rounded border border-slate-300 dark:border-white/30 bg-white dark:bg-white/15 px-1.5 py-0.5 text-[10px] text-slate-600 dark:text-white">ESC</kbd>
-                                    </button>
+                                    {{-- Right Actions (Clear button & ESC badge) --}}
+                                    <div class="odoo-search-right-actions">
+                                        <button
+                                            type="button"
+                                            x-show="search.length > 0"
+                                            x-cloak
+                                            x-on:click="search = ''; $refs.odooSearch.focus()"
+                                            class="odoo-search-clear-btn"
+                                            title="{{ __('Hapus') }}"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            x-on:click="closeMenu()"
+                                            class="odoo-search-esc-badge"
+                                            title="{{ __('Tutup (ESC)') }}"
+                                        >
+                                            ESC
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -196,36 +192,155 @@
                                     background: radial-gradient(circle at 50% 35%, #3c546a 0%, #2b3d4f 55%, #18232e 100%) !important;
                                 }
 
+                                /* Centered Search Container */
+                                .odoo-search-container {
+                                    width: 100%;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    padding: 1.75rem 1rem 0.75rem 1rem;
+                                    flex-shrink: 0;
+                                }
+
+                                .odoo-search-wrapper {
+                                    position: relative;
+                                    width: 100%;
+                                    max-width: 440px;
+                                    display: flex;
+                                    align-items: center;
+                                }
+
+                                .odoo-search-icon-box {
+                                    pointer-events: none;
+                                    position: absolute;
+                                    left: 14px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    color: #94a3b8;
+                                    z-index: 2;
+                                }
+                                :is(.dark .odoo-search-icon-box),
+                                html.dark .odoo-search-icon-box {
+                                    color: rgba(255, 255, 255, 0.6);
+                                }
+
+                                .odoo-search-input {
+                                    width: 100% !important;
+                                    height: 44px !important;
+                                    padding-left: 42px !important;
+                                    padding-right: 74px !important;
+                                    font-size: 0.875rem !important;
+                                    line-height: 1.25rem !important;
+                                    border-radius: 9999px !important;
+                                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                                    outline: none !important;
+                                }
+
                                 /* Search Input - Light Mode */
                                 .odoo-search-input {
-                                    background-color: rgba(255, 255, 255, 0.95) !important;
-                                    border: 1px solid #cbd5e1 !important;
+                                    background-color: #ffffff !important;
+                                    border: 1.5px solid #cbd5e1 !important;
                                     color: #0f172a !important;
-                                    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+                                    box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
                                 }
                                 .odoo-search-input::placeholder {
                                     color: #94a3b8 !important;
                                 }
                                 .odoo-search-input:focus {
                                     background-color: #ffffff !important;
-                                    border-color: #3b82f6 !important;
-                                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+                                    border-color: #2563eb !important;
+                                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 4px 12px -2px rgba(15, 23, 42, 0.1) !important;
                                 }
 
                                 /* Search Input - Dark Mode */
                                 :is(.dark .odoo-search-input),
                                 html.dark .odoo-search-input {
-                                    background-color: rgba(0, 0, 0, 0.35) !important;
-                                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                                    background-color: rgba(15, 23, 42, 0.5) !important;
+                                    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
                                     color: #ffffff !important;
-                                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
+                                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
                                 }
                                 :is(.dark .odoo-search-input)::placeholder {
                                     color: rgba(255, 255, 255, 0.5) !important;
                                 }
                                 :is(.dark .odoo-search-input):focus {
-                                    border-color: rgba(255, 255, 255, 0.5) !important;
-                                    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2) !important;
+                                    border-color: #60a5fa !important;
+                                    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25) !important;
+                                }
+
+                                /* Search Input Right Actions */
+                                .odoo-search-right-actions {
+                                    position: absolute;
+                                    right: 8px;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 6px;
+                                    z-index: 2;
+                                }
+
+                                .odoo-search-clear-btn {
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    width: 24px;
+                                    height: 24px;
+                                    border-radius: 9999px;
+                                    color: #94a3b8;
+                                    background: transparent;
+                                    border: none;
+                                    cursor: pointer;
+                                    padding: 0;
+                                    transition: all 0.15s ease;
+                                }
+                                .odoo-search-clear-btn:hover {
+                                    color: #475569;
+                                    background-color: #f1f5f9;
+                                }
+                                :is(.dark .odoo-search-clear-btn),
+                                html.dark .odoo-search-clear-btn {
+                                    color: rgba(255, 255, 255, 0.5);
+                                }
+                                :is(.dark .odoo-search-clear-btn):hover {
+                                    color: #ffffff;
+                                    background-color: rgba(255, 255, 255, 0.1);
+                                }
+
+                                .odoo-search-esc-badge {
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 10px;
+                                    font-weight: 700;
+                                    line-height: 1;
+                                    letter-spacing: 0.05em;
+                                    padding: 4px 7px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    user-select: none;
+                                    transition: all 0.15s ease;
+                                }
+                                /* ESC Badge - Light Mode */
+                                .odoo-search-esc-badge {
+                                    background-color: #f1f5f9;
+                                    border: 1px solid #cbd5e1;
+                                    color: #64748b;
+                                }
+                                .odoo-search-esc-badge:hover {
+                                    background-color: #e2e8f0;
+                                    color: #0f172a;
+                                    border-color: #94a3b8;
+                                }
+                                /* ESC Badge - Dark Mode */
+                                :is(.dark .odoo-search-esc-badge),
+                                html.dark .odoo-search-esc-badge {
+                                    background-color: rgba(255, 255, 255, 0.12);
+                                    border: 1px solid rgba(255, 255, 255, 0.25);
+                                    color: rgba(255, 255, 255, 0.85);
+                                }
+                                :is(.dark .odoo-search-esc-badge):hover {
+                                    background-color: rgba(255, 255, 255, 0.2);
+                                    color: #ffffff;
                                 }
 
                                 /* App Icon Squircle - Light Mode */
