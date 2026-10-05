@@ -488,63 +488,65 @@
             @endif
         @endif
 
-        <div class="fi-topbar-start" style="margin-right: 0">
-            @if ($isSidebarCollapsibleOnDesktop)
-                <x-filament::icon-button
-                    color="gray"
-                    :icon="$isRtl ? \Filament\Support\Icons\Heroicon::OutlinedChevronLeft : \Filament\Support\Icons\Heroicon::OutlinedChevronRight"
-                    :icon-alias="
-                        $isRtl
-                            ? [
-                                \Filament\View\PanelsIconAlias::SIDEBAR_EXPAND_BUTTON_RTL,
-                                \Filament\View\PanelsIconAlias::SIDEBAR_EXPAND_BUTTON,
-                            ]
-                            : \Filament\View\PanelsIconAlias::SIDEBAR_EXPAND_BUTTON
-                    "
-                    icon-size="lg"
-                    :label="__('filament-panels::layout.actions.sidebar.expand.label')"
-                    x-cloak
-                    x-data="{}"
-                    x-on:click="$store.sidebar.open()"
-                    x-show="! $store.sidebar.isOpen"
-                    class="fi-topbar-open-collapse-sidebar-btn"
-                />
-            @endif
+        @if (! $isAdminPanel)
+            <div class="fi-topbar-start" style="margin-right: 0">
+                @if ($isSidebarCollapsibleOnDesktop)
+                    <x-filament::icon-button
+                        color="gray"
+                        :icon="$isRtl ? \Filament\Support\Icons\Heroicon::OutlinedChevronLeft : \Filament\Support\Icons\Heroicon::OutlinedChevronRight"
+                        :icon-alias="
+                            $isRtl
+                                ? [
+                                    \Filament\View\PanelsIconAlias::SIDEBAR_EXPAND_BUTTON_RTL,
+                                    \Filament\View\PanelsIconAlias::SIDEBAR_EXPAND_BUTTON,
+                                ]
+                                : \Filament\View\PanelsIconAlias::SIDEBAR_EXPAND_BUTTON
+                        "
+                        icon-size="lg"
+                        :label="__('filament-panels::layout.actions.sidebar.expand.label')"
+                        x-cloak
+                        x-data="{}"
+                        x-on:click="$store.sidebar.open()"
+                        x-show="! $store.sidebar.isOpen"
+                        class="fi-topbar-open-collapse-sidebar-btn"
+                    />
+                @endif
 
-            @if ($isSidebarCollapsibleOnDesktop || $isSidebarFullyCollapsibleOnDesktop)
-                <x-filament::icon-button
-                    color="gray"
-                    :icon="$isRtl ? \Filament\Support\Icons\Heroicon::OutlinedChevronRight : \Filament\Support\Icons\Heroicon::OutlinedChevronLeft"
-                    :icon-alias="
-                        $isRtl
-                            ? [
-                                \Filament\View\PanelsIconAlias::SIDEBAR_COLLAPSE_BUTTON_RTL,
-                                \Filament\View\PanelsIconAlias::SIDEBAR_COLLAPSE_BUTTON,
-                            ]
-                            : \Filament\View\PanelsIconAlias::SIDEBAR_COLLAPSE_BUTTON
-                    "
-                    icon-size="lg"
-                    :label="__('filament-panels::layout.actions.sidebar.collapse.label')"
-                    x-cloak
-                    x-data="{}"
-                    x-on:click="$store.sidebar.close()"
-                    x-show="$store.sidebar.isOpen"
-                    class="fi-topbar-close-collapse-sidebar-btn"
-                />
-            @endif
+                @if ($isSidebarCollapsibleOnDesktop || $isSidebarFullyCollapsibleOnDesktop)
+                    <x-filament::icon-button
+                        color="gray"
+                        :icon="$isRtl ? \Filament\Support\Icons\Heroicon::OutlinedChevronRight : \Filament\Support\Icons\Heroicon::OutlinedChevronLeft"
+                        :icon-alias="
+                            $isRtl
+                                ? [
+                                    \Filament\View\PanelsIconAlias::SIDEBAR_COLLAPSE_BUTTON_RTL,
+                                    \Filament\View\PanelsIconAlias::SIDEBAR_COLLAPSE_BUTTON,
+                                ]
+                                : \Filament\View\PanelsIconAlias::SIDEBAR_COLLAPSE_BUTTON
+                        "
+                        icon-size="lg"
+                        :label="__('filament-panels::layout.actions.sidebar.collapse.label')"
+                        x-cloak
+                        x-data="{}"
+                        x-on:click="$store.sidebar.close()"
+                        x-show="$store.sidebar.isOpen"
+                        class="fi-topbar-close-collapse-sidebar-btn"
+                    />
+                @endif
 
-            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_LOGO_BEFORE) }}
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_LOGO_BEFORE) }}
 
-            @if ($homeUrl = filament()->getHomeUrl())
-                <a {{ \Filament\Support\generate_href_html($homeUrl) }}>
+                @if ($homeUrl = filament()->getHomeUrl())
+                    <a {{ \Filament\Support\generate_href_html($homeUrl) }}>
+                        <x-filament-panels::logo />
+                    </a>
+                @else
                     <x-filament-panels::logo />
-                </a>
-            @else
-                <x-filament-panels::logo />
-            @endif
+                @endif
 
-            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_LOGO_AFTER) }}
-        </div>
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::TOPBAR_LOGO_AFTER) }}
+            </div>
+        @endif
 
         @if ($hasTopNavigation || (! $hasNavigation))
             @if ($hasTenancy && filament()->hasTenantMenu())
@@ -552,7 +554,7 @@
             @endif
 
             @if ($hasNavigation)
-                <ul class="fi-topbar-nav-groups">
+                <ul class="fi-topbar-nav-groups" style="flex-wrap: nowrap !important; align-items: center !important;">
                     @foreach ($navigation as $group)
                         @php
                             $groupLabel = $group->getLabel();
