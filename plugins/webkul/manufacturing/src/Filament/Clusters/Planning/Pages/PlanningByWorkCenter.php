@@ -8,8 +8,6 @@ use Filament\Pages\Page;
 use Livewire\Attributes\Computed;
 use Webkul\Manufacturing\Enums\WorkCenterWorkingState;
 use Webkul\Manufacturing\Enums\WorkOrderState;
-use Webkul\Manufacturing\Filament\Clusters\Operations\Resources\ManufacturingOrderResource;
-use Webkul\Manufacturing\Filament\Clusters\Operations\Resources\WorkOrderResource;
 use Webkul\Manufacturing\Filament\Clusters\Planning;
 use Webkul\Manufacturing\Models\WorkCenter;
 use Webkul\Manufacturing\Models\WorkOrder;
@@ -60,7 +58,7 @@ class PlanningByWorkCenter extends Page
 
     public function previous(): void
     {
-        $date = Carbon::parse($this->currentDate);
+        $date = Carbon::parse($this->currentDate ?: now());
 
         $this->currentDate = match ($this->viewMode) {
             'day'   => $date->subDay()->toDateString(),
@@ -72,7 +70,7 @@ class PlanningByWorkCenter extends Page
 
     public function next(): void
     {
-        $date = Carbon::parse($this->currentDate);
+        $date = Carbon::parse($this->currentDate ?: now());
 
         $this->currentDate = match ($this->viewMode) {
             'day'   => $date->addDay()->toDateString(),
@@ -166,9 +164,11 @@ class PlanningByWorkCenter extends Page
             default => $this->buildWeekColumns($current),
         };
 
-        $totalSeconds = max(1, $rangeEnd->diffInSeconds($rangeStart));
+        $rangeStartTs = $rangeStart->timestamp;
+        $rangeEndTs = $rangeEnd->timestamp;
+        $totalSeconds = max(1, $rangeEndTs - $rangeStartTs);
 
-        // Get Work Centers for current company
+        // Work centers
         $workCentersQuery = WorkCenter::query()
             ->where('company_id', current_company_id());
 
@@ -178,7 +178,7 @@ class PlanningByWorkCenter extends Page
 
         $workCenters = $workCentersQuery->orderBy('sort')->get();
 
-        // Get Work Orders
+        // Work orders
         $workOrdersQuery = WorkOrder::query()
             ->with([
                 'workCenter',
@@ -221,8 +221,15 @@ class PlanningByWorkCenter extends Page
                 $expectedDuration = (float) ($wo->expected_duration ?: 60);
                 $woEnd = $wo->finished_at ?? (clone $woStart)->addMinutes($expectedDuration);
 
-                // Check overlap with the current time range
-                if ($woEnd->lt($rangeStart) || $woStart->gt($rangeEnd)) {
+                $startTs = $woStart->timestamp;
+                $endTs = $woEnd->timestamp;
+
+                if ($endTs <= $startTs) {
+                    $endTs = $startTs + max(1800, (int) ($expectedDuration * 60));
+                }
+
+                // Check overlap
+                if ($endTs < $rangeStartTs || $startTs > $rangeEndTs) {
                     continue;
                 }
 
@@ -240,18 +247,15 @@ class PlanningByWorkCenter extends Page
                 $wcPlannedMinutes += $expectedDuration;
                 $totalPlannedHours += ($expectedDuration / 60.0);
 
-                // Position calculation
-                $effectiveStart = $woStart->lt($rangeStart) ? $rangeStart : $woStart;
-                $effectiveEnd = $woEnd->gt($rangeEnd) ? $rangeEnd : $woEnd;
+                // Clamped coordinates
+                $clampedStartTs = max($rangeStartTs, $startTs);
+                $clampedEndTs = min($rangeEndTs, $endTs);
 
-                $startDiffSeconds = $rangeStart->diffInSeconds($effectiveStart, false);
-                $durationSeconds = max(60, $effectiveStart->diffInSeconds($effectiveEnd));
+                $leftPercent = (($clampedStartTs - $rangeStartTs) / $totalSeconds) * 100;
+                $widthPercent = (($clampedEndTs - $clampedStartTs) / $totalSeconds) * 100;
 
-                $leftPercent = ($startDiffSeconds / $totalSeconds) * 100;
-                $widthPercent = ($durationSeconds / $totalSeconds) * 100;
-
-                $leftPercent = max(0, min(99.5, $leftPercent));
-                $widthPercent = max(1.8, min(100 - $leftPercent, $widthPercent));
+                $leftPercent = max(0, min(97.0, $leftPercent));
+                $widthPercent = max(3.0, min(100 - $leftPercent, $widthPercent));
 
                 $items[] = [
                     'id'               => $wo->id,
@@ -267,8 +271,8 @@ class PlanningByWorkCenter extends Page
                     'start_formatted'  => $woStart->format('d M H:i'),
                     'end_formatted'    => $woEnd->format('d M H:i'),
                     'duration_hours'   => round($expectedDuration / 60, 1),
-                    'left_percent'     => $leftPercent,
-                    'width_percent'    => $widthPercent,
+                    'left_percent'     => round($leftPercent, 2),
+                    'width_percent'    => round($widthPercent, 2),
                     'is_in_progress'   => $stateVal === WorkOrderState::PROGRESS->value,
                     'is_ready'         => $stateVal === WorkOrderState::READY->value,
                     'is_done'          => $stateVal === WorkOrderState::DONE->value,
@@ -283,7 +287,6 @@ class PlanningByWorkCenter extends Page
             ];
         }
 
-        // Period title for header
         $periodTitle = match ($this->viewMode) {
             'day'   => $current->format('l, d F Y'),
             'week'  => 'Week ' . $current->isoWeek() . ' (' . $rangeStart->format('d M') . ' - ' . $rangeEnd->format('d M Y') . ')',
@@ -367,34 +370,34 @@ class PlanningByWorkCenter extends Page
     {
         return match ($state) {
             WorkOrderState::PROGRESS->value => [
-                'bg'     => 'bg-amber-500 hover:bg-amber-600',
-                'border' => 'border-amber-600',
+                'bg'     => 'bg-amber-600 hover:bg-amber-500',
+                'border' => 'border-amber-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+                'badge'  => 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
             ],
             WorkOrderState::READY->value => [
-                'bg'     => 'bg-blue-600 hover:bg-blue-700',
-                'border' => 'border-blue-700',
+                'bg'     => 'bg-blue-600 hover:bg-blue-500',
+                'border' => 'border-blue-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+                'badge'  => 'bg-blue-500/15 text-blue-400 border border-blue-500/30',
             ],
             WorkOrderState::DONE->value => [
-                'bg'     => 'bg-emerald-600 hover:bg-emerald-700',
-                'border' => 'border-emerald-700',
+                'bg'     => 'bg-emerald-600 hover:bg-emerald-500',
+                'border' => 'border-emerald-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+                'badge'  => 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
             ],
             WorkOrderState::CANCEL->value => [
-                'bg'     => 'bg-rose-500 hover:bg-rose-600',
-                'border' => 'border-rose-600',
+                'bg'     => 'bg-rose-600 hover:bg-rose-500',
+                'border' => 'border-rose-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300',
+                'badge'  => 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
             ],
             default => [
-                'bg'     => 'bg-slate-500 hover:bg-slate-600',
-                'border' => 'border-slate-600',
+                'bg'     => 'bg-slate-600 hover:bg-slate-500',
+                'border' => 'border-slate-500',
                 'text'   => 'text-white',
-                'badge'  => 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300',
+                'badge'  => 'bg-slate-500/15 text-slate-400 border border-slate-500/30',
             ],
         };
     }

@@ -3,13 +3,10 @@
 namespace Webkul\Manufacturing\Filament\Clusters\Planning\Pages;
 
 use Carbon\Carbon;
-use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Livewire\Attributes\Computed;
-use Webkul\Manufacturing\Enums\ManufacturingOrderPriority;
 use Webkul\Manufacturing\Enums\ManufacturingOrderState;
 use Webkul\Manufacturing\Enums\WorkOrderState;
-use Webkul\Manufacturing\Filament\Clusters\Operations\Resources\ManufacturingOrderResource;
 use Webkul\Manufacturing\Filament\Clusters\Planning;
 use Webkul\Manufacturing\Models\Order;
 
@@ -57,7 +54,7 @@ class PlanningByProduction extends Page
 
     public function previous(): void
     {
-        $date = Carbon::parse($this->currentDate);
+        $date = Carbon::parse($this->currentDate ?: now());
 
         $this->currentDate = match ($this->viewMode) {
             'week'  => $date->subWeek()->toDateString(),
@@ -68,7 +65,7 @@ class PlanningByProduction extends Page
 
     public function next(): void
     {
-        $date = Carbon::parse($this->currentDate);
+        $date = Carbon::parse($this->currentDate ?: now());
 
         $this->currentDate = match ($this->viewMode) {
             'week'  => $date->addWeek()->toDateString(),
@@ -119,7 +116,9 @@ class PlanningByProduction extends Page
             default => $this->buildMonthColumns($current),
         };
 
-        $totalSeconds = max(1, $rangeEnd->diffInSeconds($rangeStart));
+        $rangeStartTs = $rangeStart->timestamp;
+        $rangeEndTs = $rangeEnd->timestamp;
+        $totalSeconds = max(1, $rangeEndTs - $rangeStartTs);
 
         $ordersQuery = Order::query()
             ->where('company_id', current_company_id())
@@ -153,10 +152,18 @@ class PlanningByProduction extends Page
 
         foreach ($allOrders as $order) {
             $moStart = $order->started_at ?? $order->created_at ?? now();
+            // Default 3 days span if deadline/finished_at is not set
             $moEnd = $order->finished_at ?? $order->deadline_at ?? (clone $moStart)->addDays(3);
 
-            // Check overlap
-            if ($moEnd->lt($rangeStart) || $moStart->gt($rangeEnd)) {
+            $startTs = $moStart->timestamp;
+            $endTs = $moEnd->timestamp;
+
+            if ($endTs <= $startTs) {
+                $endTs = $startTs + (3 * 86400);
+            }
+
+            // Check if within visible time window
+            if ($endTs < $rangeStartTs || $startTs > $rangeEndTs) {
                 continue;
             }
 
@@ -181,20 +188,17 @@ class PlanningByProduction extends Page
 
             $totalQuantityProducing += (float) $order->quantity;
 
-            // Bar positioning
-            $effectiveStart = $moStart->lt($rangeStart) ? $rangeStart : $moStart;
-            $effectiveEnd = $moEnd->gt($rangeEnd) ? $rangeEnd : $moEnd;
+            // Clamped coordinates in timestamps
+            $clampedStartTs = max($rangeStartTs, $startTs);
+            $clampedEndTs = min($rangeEndTs, $endTs);
 
-            $startDiffSeconds = $rangeStart->diffInSeconds($effectiveStart, false);
-            $durationSeconds = max(3600, $effectiveStart->diffInSeconds($effectiveEnd));
+            $leftPercent = (($clampedStartTs - $rangeStartTs) / $totalSeconds) * 100;
+            $widthPercent = (($clampedEndTs - $clampedStartTs) / $totalSeconds) * 100;
 
-            $leftPercent = ($startDiffSeconds / $totalSeconds) * 100;
-            $widthPercent = ($durationSeconds / $totalSeconds) * 100;
+            $leftPercent = max(0, min(97.0, $leftPercent));
+            $widthPercent = max(3.5, min(100 - $leftPercent, $widthPercent));
 
-            $leftPercent = max(0, min(99.5, $leftPercent));
-            $widthPercent = max(2.5, min(100 - $leftPercent, $widthPercent));
-
-            // Work order segments
+            // Work order stats
             $workOrdersCount = $order->workOrders->count();
             $doneWoCount = $order->workOrders->filter(fn ($wo) => ($wo->state instanceof WorkOrderState ? $wo->state->value : $wo->state) === WorkOrderState::DONE->value)->count();
             $progressPercent = $workOrdersCount > 0
@@ -207,10 +211,10 @@ class PlanningByProduction extends Page
                 'state_label'          => $order->state instanceof ManufacturingOrderState ? $order->state->getLabel() : ucfirst($stateVal),
                 'color_theme'          => $this->getOrderColorTheme($stateVal, $isOverdue),
                 'is_overdue'           => $isOverdue,
-                'start_formatted'      => $moStart->format('d M Y'),
-                'deadline_formatted'   => $order->deadline_at ? $order->deadline_at->format('d M Y') : '—',
-                'left_percent'         => $leftPercent,
-                'width_percent'        => $widthPercent,
+                'start_formatted'      => $moStart->format('d M Y, H:i'),
+                'deadline_formatted'   => $order->deadline_at ? $order->deadline_at->format('d M Y, H:i') : 'No deadline',
+                'left_percent'         => round($leftPercent, 2),
+                'width_percent'        => round($widthPercent, 2),
                 'progress_percent'     => $progressPercent,
                 'work_orders_count'    => $workOrdersCount,
                 'done_wo_count'        => $doneWoCount,
@@ -281,49 +285,49 @@ class PlanningByProduction extends Page
     {
         if ($isOverdue) {
             return [
-                'bg'     => 'bg-rose-500 hover:bg-rose-600',
-                'border' => 'border-rose-600 ring-2 ring-rose-400',
+                'bg'     => 'bg-rose-600 hover:bg-rose-500',
+                'border' => 'border-rose-400 ring-2 ring-rose-500/50',
                 'text'   => 'text-white',
-                'badge'  => 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300',
+                'badge'  => 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
             ];
         }
 
         return match ($state) {
             ManufacturingOrderState::PROGRESS->value => [
-                'bg'     => 'bg-amber-500 hover:bg-amber-600',
-                'border' => 'border-amber-600',
+                'bg'     => 'bg-amber-600 hover:bg-amber-500',
+                'border' => 'border-amber-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+                'badge'  => 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
             ],
             ManufacturingOrderState::CONFIRMED->value => [
-                'bg'     => 'bg-blue-600 hover:bg-blue-700',
-                'border' => 'border-blue-700',
+                'bg'     => 'bg-blue-600 hover:bg-blue-500',
+                'border' => 'border-blue-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+                'badge'  => 'bg-blue-500/15 text-blue-400 border border-blue-500/30',
             ],
             ManufacturingOrderState::TO_CLOSE->value => [
-                'bg'     => 'bg-indigo-600 hover:bg-indigo-700',
-                'border' => 'border-indigo-700',
+                'bg'     => 'bg-indigo-600 hover:bg-indigo-500',
+                'border' => 'border-indigo-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
+                'badge'  => 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30',
             ],
             ManufacturingOrderState::DONE->value => [
-                'bg'     => 'bg-emerald-600 hover:bg-emerald-700',
-                'border' => 'border-emerald-700',
+                'bg'     => 'bg-emerald-600 hover:bg-emerald-500',
+                'border' => 'border-emerald-400',
                 'text'   => 'text-white',
-                'badge'  => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+                'badge'  => 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
             ],
             ManufacturingOrderState::CANCEL->value => [
-                'bg'     => 'bg-slate-400 hover:bg-slate-500',
-                'border' => 'border-slate-500',
+                'bg'     => 'bg-gray-600 hover:bg-gray-500',
+                'border' => 'border-gray-500',
                 'text'   => 'text-white',
-                'badge'  => 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300',
+                'badge'  => 'bg-gray-500/15 text-gray-400 border border-gray-500/30',
             ],
             default => [
-                'bg'     => 'bg-slate-500 hover:bg-slate-600',
-                'border' => 'border-slate-600',
+                'bg'     => 'bg-slate-600 hover:bg-slate-500',
+                'border' => 'border-slate-500',
                 'text'   => 'text-white',
-                'badge'  => 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300',
+                'badge'  => 'bg-slate-500/15 text-slate-400 border border-slate-500/30',
             ],
         };
     }
