@@ -218,6 +218,15 @@ class PlanningByProduction extends Page
                 'progress_percent'     => $progressPercent,
                 'work_orders_count'    => $workOrdersCount,
                 'done_wo_count'        => $doneWoCount,
+                'bar_class'            => $isOverdue
+                    ? 'gantt-bar-overdue'
+                    : match ($stateVal) {
+                        'progress'  => 'gantt-bar-progress',
+                        'confirmed' => 'gantt-bar-confirmed',
+                        'to_close'  => 'gantt-bar-ready',
+                        'done'      => 'gantt-bar-done',
+                        default     => 'gantt-bar-waiting',
+                    },
             ];
         }
 
