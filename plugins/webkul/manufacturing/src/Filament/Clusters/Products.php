@@ -3,6 +3,7 @@
 namespace Webkul\Manufacturing\Filament\Clusters;
 
 use Filament\Clusters\Cluster;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Webkul\Support\Enums\NavigationGroup;
 
 class Products extends Cluster
@@ -11,7 +12,7 @@ class Products extends Cluster
 
     protected static ?int $navigationSort = 2;
 
-    protected static bool $shouldRegisterSubNavigation = false;
+    protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Start;
 
     public static function getNavigationLabel(): string
     {
