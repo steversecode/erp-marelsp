@@ -1,6 +1,11 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
 <style>
     /* ==========================================================================
-       MAREL ERP PORTAL THEME (1:1 SLICING FROM LOGINSCREEN.TSX)
+       MAREL ERP PORTAL THEME (EXACT 1:1 SLICING FROM marel-erp-portal LoginScreen.tsx)
        PT Marel Sukses Pratama
        ========================================================================== */
 
@@ -15,17 +20,27 @@
         }
     }
 
-    /* Outer Viewport */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Outer Viewport Reset */
     html, body.fi-body {
         margin: 0 !important;
         padding: 0 !important;
         background-color: #F8FAFC !important;
-        color: #0F172A !important;
+        color: #0B1C30 !important;
         font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
         -webkit-font-smoothing: antialiased;
         overflow-x: hidden !important;
     }
 
+    ::selection {
+        background-color: #0070F2 !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Filament Layout Overrides */
     .fi-simple-layout {
         position: relative !important;
         min-height: 100vh !important;
@@ -78,99 +93,116 @@
         display: none !important;
     }
 
-    /* Card Form Inputs Styling (1:1 with LoginScreen.tsx) */
-    .fi-fo-field-wrp-label label,
-    .fi-fo-field-wrp-label span {
-        font-size: 0.75rem !important;
-        font-weight: 500 !important;
-        color: #0F172A !important;
-        letter-spacing: -0.01em !important;
-        display: inline-block !important;
-        margin-bottom: 0.25rem !important;
+    /* Material Symbols Outlined */
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined' !important;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
     }
 
-    .fi-input-wrp {
-        background-color: #FFFFFF !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 0.5rem !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-        transition: all 0.15s ease-in-out !important;
+    /* Input & Interactive Styles matching LoginScreen.tsx exactly */
+    .msp-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border-radius: 0.5rem;
+        border: 1px solid #E2E8F0;
+        background-color: #FFFFFF;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        transition: all 0.15s ease-in-out;
     }
 
-    .fi-input-wrp:hover {
-        border-color: #CBD5E1 !important;
+    .msp-input-wrap:hover {
+        border-color: #CBD5E1;
     }
 
-    .fi-input-wrp:focus-within {
-        border-color: #0070F2 !important;
-        box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.15) !important;
+    .msp-input-wrap:focus-within {
+        border-color: #0070F2;
+        box-shadow: 0 0 0 2px rgba(0, 112, 242, 0.15);
     }
 
-    .fi-input-wrp input {
-        color: #0F172A !important;
-        background: transparent !important;
-        font-size: 0.8125rem !important;
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
+    .msp-input-icon {
+        position: absolute;
+        left: 0.75rem;
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+        color: #64748B;
     }
 
-    @media (max-width: 640px) {
-        .fi-input-wrp input {
-            font-size: 16px !important; /* Prevent mobile zoom */
+    .msp-input-field {
+        width: 100%;
+        height: 2.5rem;
+        padding-left: 2.5rem;
+        padding-right: 0.75rem;
+        background: transparent;
+        border-radius: 0.5rem;
+        border: none;
+        outline: none;
+        font-size: 0.8125rem;
+        color: #0F172A;
+        transition: color 0.15s ease-in-out;
+    }
+
+    @media (min-width: 640px) {
+        .msp-input-field {
+            font-size: 0.875rem;
         }
     }
 
-    .fi-input-wrp input::placeholder {
-        color: #94A3B8 !important;
+    .msp-input-field::placeholder {
+        color: #94A3B8;
     }
 
-    /* Checkbox & Remember Me */
-    .fi-fo-checkbox label {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        cursor: pointer !important;
+    .msp-input-password {
+        padding-right: 2.5rem !important;
     }
 
-    .fi-checkbox-input {
-        width: 1rem !important;
-        height: 1rem !important;
-        border-radius: 0.25rem !important;
-        border: 1px solid #CBD5E1 !important;
-        background-color: #FFFFFF !important;
-        transition: all 0.15s ease !important;
+    /* Custom Checkbox */
+    .msp-checkbox-box {
+        width: 0.875rem;
+        height: 0.875rem;
+        border-radius: 0.25rem;
+        border: 1px solid #CBD5E1;
+        background-color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+        transition: background-color 0.15s, border-color 0.15s;
     }
 
-    .fi-checkbox-input:checked {
-        background-color: #0A2540 !important;
-        border-color: #0A2540 !important;
+    @media (min-width: 640px) {
+        .msp-checkbox-box {
+            width: 1rem;
+            height: 1rem;
+        }
     }
 
-    .fi-fo-checkbox label span {
-        font-size: 0.75rem !important;
-        color: #0F172A !important;
-        font-weight: 400 !important;
+    input:checked + .msp-checkbox-box {
+        background-color: #0A2540;
+        border-color: #0A2540;
     }
 
-    /* Forgot Password Link */
-    .fi-link,
-    a.fi-link {
-        color: #0070F2 !important;
-        font-size: 0.75rem !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        transition: all 0.15s ease !important;
+    input:checked + .msp-checkbox-box .msp-check-icon {
+        opacity: 1;
     }
 
-    .fi-link:hover,
-    a.fi-link:hover {
-        text-decoration: underline !important;
-    }
-
-    /* Submit Button (1:1 #0A2540) */
-    .marel-btn-primary {
+    /* Submit Button (1:1 with LoginScreen.tsx) */
+    .msp-btn-submit {
         width: 100%;
         height: 2.5rem;
+        margin-top: 0.125rem;
         border-radius: 0.5rem;
         background-color: #0A2540;
         color: #FFFFFF !important;
@@ -184,22 +216,31 @@
         gap: 0.5rem;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         cursor: pointer;
-        transition: all 0.15s ease-in-out;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @media (min-width: 640px) {
-        .marel-btn-primary {
+        .msp-btn-submit {
             height: 2.625rem;
             font-size: 0.875rem;
         }
     }
 
-    .marel-btn-primary:hover {
+    .msp-btn-submit:hover:not(:disabled) {
         background-color: #002643;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
-    .marel-btn-primary:active {
+    .msp-btn-submit:active:not(:disabled) {
         transform: scale(0.99);
+    }
+
+    .msp-btn-submit:disabled {
+        opacity: 0.8;
+        cursor: not-allowed;
+    }
+
+    .msp-btn-submit:hover .msp-arrow-icon {
+        transform: translateX(0.125rem);
     }
 </style>
