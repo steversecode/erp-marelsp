@@ -1,3 +1,4 @@
+@if (! auth()->check() || request()->routeIs('filament.*.auth.*'))
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -7,6 +8,7 @@
     /* ==========================================================================
        MAREL ERP PORTAL THEME (EXACT 1:1 SLICING FROM marel-erp-portal LoginScreen.tsx)
        PT Marel Sukses Pratama
+       STRICTLY SCOPED TO AUTH PAGES ONLY (.fi-simple-layout)
        ========================================================================== */
 
     @keyframes spin {
@@ -24,28 +26,10 @@
         display: none !important;
     }
 
-    /* Completely hide scrollbars across the entire viewport */
-    html,
-    body,
-    body.fi-body,
-    .fi-simple-layout,
-    .fi-simple-main-ctn,
-    .fi-simple-main {
-        scrollbar-width: none !important; /* Firefox */
-        -ms-overflow-style: none !important; /* IE and Edge */
-        overflow: hidden !important;
-    }
-
-    html::-webkit-scrollbar,
-    body::-webkit-scrollbar,
-    *::-webkit-scrollbar {
-        width: 0px !important;
-        height: 0px !important;
-        display: none !important;
-    }
-
-    /* Outer Viewport Reset */
-    html, body.fi-body {
+    /* Outer Viewport Reset - Strictly scoped to Auth Simple Layout */
+    html:has(.fi-simple-layout),
+    body.fi-body:has(.fi-simple-layout),
+    body:has(.fi-simple-layout) {
         margin: 0 !important;
         padding: 0 !important;
         height: 100% !important;
@@ -58,14 +42,25 @@
         font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
         -webkit-font-smoothing: antialiased;
         overflow: hidden !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
     }
 
-    ::selection {
+    html:has(.fi-simple-layout)::-webkit-scrollbar,
+    body:has(.fi-simple-layout)::-webkit-scrollbar,
+    .fi-simple-layout::-webkit-scrollbar,
+    .fi-simple-layout *::-webkit-scrollbar {
+        width: 0px !important;
+        height: 0px !important;
+        display: none !important;
+    }
+
+    .fi-simple-layout ::selection {
         background-color: #0070F2 !important;
         color: #FFFFFF !important;
     }
 
-    /* Filament Layout Overrides */
+    /* Filament Simple Layout Overrides */
     .fi-simple-layout {
         position: relative !important;
         height: 100% !important;
@@ -82,6 +77,8 @@
         justify-content: space-between !important;
         background: #F8FAFC !important;
         overflow: hidden !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
     }
 
     .fi-simple-layout::before {
@@ -102,6 +99,8 @@
         align-items: center !important;
         justify-content: center !important;
         overflow: hidden !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
     }
 
     .fi-simple-main {
@@ -118,10 +117,12 @@
         border-radius: 0 !important;
         animation: none !important;
         overflow: hidden !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
     }
 
-    .fi-simple-header,
-    .fi-simple-footer {
+    .fi-simple-layout .fi-simple-header,
+    .fi-simple-layout .fi-simple-footer {
         display: none !important;
     }
 
@@ -322,3 +323,4 @@
         box-sizing: border-box !important;
     }
 </style>
+@endif

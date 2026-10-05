@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn () => view('filament.hooks.auth-styles')
+                fn () => (! auth()->check() || request()->routeIs('filament.admin.auth.*')) ? view('filament.hooks.auth-styles') : ''
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
