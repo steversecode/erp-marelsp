@@ -10,7 +10,7 @@ class Products extends Cluster
 {
     protected static ?string $slug = 'manufacturing/products';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Start;
 
