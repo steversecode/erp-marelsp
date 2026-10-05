@@ -2,6 +2,7 @@
 
 namespace Webkul\Product\Filament\Resources\ProductResource\Schemas;
 
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
@@ -61,6 +62,30 @@ class ProductForm
                     ->autofocus()
                     ->placeholder(__('products::filament/resources/product.form.sections.general.fields.name-placeholder'))
                     ->extraInputAttributes(['style' => 'font-size: 1.25rem; font-weight: 600; height: 3.25rem;'])
+                    ->columnSpanFull(),
+
+                Grid::make(['default' => 2, 'sm' => 2, 'md' => 4])
+                    ->schema([
+                        Checkbox::make('sales_ok')
+                            ->label(__('Can be Sold'))
+                            ->default(true)
+                            ->afterStateHydrated(function (Checkbox $component, $state, $record) {
+                                if ($record) {
+                                    $component->state((bool) ($record->sales_ok ?? $record->enable_sales ?? true));
+                                }
+                            })
+                            ->dehydrateStateUsing(fn ($state) => (bool) $state),
+
+                        Checkbox::make('purchase_ok')
+                            ->label(__('Can be Purchased'))
+                            ->default(true)
+                            ->afterStateHydrated(function (Checkbox $component, $state, $record) {
+                                if ($record) {
+                                    $component->state((bool) ($record->purchase_ok ?? $record->enable_purchase ?? true));
+                                }
+                            })
+                            ->dehydrateStateUsing(fn ($state) => (bool) $state),
+                    ])
                     ->columnSpanFull(),
 
                 Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])

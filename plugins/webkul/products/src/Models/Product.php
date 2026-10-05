@@ -55,6 +55,8 @@ class Product extends Model implements Sortable
         'description_sale',
         'enable_sales',
         'enable_purchase',
+        'sales_ok',
+        'purchase_ok',
         'is_favorite',
         'is_configurable',
         'images',
@@ -76,6 +78,8 @@ class Product extends Model implements Sortable
         'type'             => ProductType::class,
         'enable_sales'     => 'boolean',
         'enable_purchase'  => 'boolean',
+        'sales_ok'         => 'boolean',
+        'purchase_ok'      => 'boolean',
         'is_favorite'      => 'boolean',
         'is_configurable'  => 'boolean',
         'images'           => 'array',
@@ -447,6 +451,20 @@ class Product extends Model implements Sortable
 
         static::creating(function ($product) {
             $product->creator_id = Auth::id();
+        });
+
+        static::saving(function (self $product) {
+            if (isset($product->attributes['sales_ok'])) {
+                $product->attributes['enable_sales'] = (bool) $product->attributes['sales_ok'];
+            } elseif (isset($product->attributes['enable_sales'])) {
+                $product->attributes['sales_ok'] = (bool) $product->attributes['enable_sales'];
+            }
+
+            if (isset($product->attributes['purchase_ok'])) {
+                $product->attributes['enable_purchase'] = (bool) $product->attributes['purchase_ok'];
+            } elseif (isset($product->attributes['enable_purchase'])) {
+                $product->attributes['purchase_ok'] = (bool) $product->attributes['enable_purchase'];
+            }
         });
 
         static::saved(function ($product) {

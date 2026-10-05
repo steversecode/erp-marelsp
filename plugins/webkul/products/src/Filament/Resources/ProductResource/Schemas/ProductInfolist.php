@@ -2,6 +2,7 @@
 
 namespace Webkul\Product\Filament\Resources\ProductResource\Schemas;
 
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
@@ -45,6 +46,17 @@ class ProductInfolist
             ->schema([
                 TextEntry::make('name')
                     ->label(__('products::filament/resources/product.infolist.sections.general.entries.name')),
+
+                Grid::make(['default' => 2, 'sm' => 2, 'md' => 4])
+                    ->schema([
+                        IconEntry::make('sales_ok')
+                            ->label(__('Can be Sold'))
+                            ->boolean(),
+
+                        IconEntry::make('purchase_ok')
+                            ->label(__('Can be Purchased'))
+                            ->boolean(),
+                    ]),
 
                 TextEntry::make('description')
                     ->label(__('products::filament/resources/product.infolist.sections.general.entries.description'))
