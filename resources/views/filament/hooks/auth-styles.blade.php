@@ -282,4 +282,43 @@
         justify-content: center;
         gap: 0.5rem;
     }
+
+    /* Modal Center Positioning */
+    .msp-modal-overlay {
+        position: fixed !important;
+        inset: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 99999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 1rem !important;
+        background-color: rgba(10, 37, 64, 0.6) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        box-sizing: border-box !important;
+    }
+
+    .msp-modal-overlay[style*="display: none"] {
+        display: none !important;
+    }
+
+    .msp-modal-card {
+        margin: auto !important;
+        width: 100% !important;
+        max-width: 28rem !important;
+        background-color: #FFFFFF !important;
+        border-radius: 0.75rem !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        border: 1px solid #E2E8F0 !important;
+        padding: 1.5rem !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+    }
 </style>

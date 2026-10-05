@@ -337,12 +337,12 @@
     <div
         x-show="showForgotModal"
         x-cloak
-        style="position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(10, 37, 64, 0.6); backdrop-filter: blur(4px);"
+        class="msp-modal-overlay"
         @keydown.escape.window="showForgotModal = false"
     >
         <div
             @click.outside="showForgotModal = false"
-            style="width: 100%; max-width: 28rem; background-color: #FFFFFF; border-radius: 0.75rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #E2E8F0; padding: 1.5rem; position: relative; box-sizing: border-box;"
+            class="msp-modal-card"
         >
             <!-- Close Button -->
             <button
