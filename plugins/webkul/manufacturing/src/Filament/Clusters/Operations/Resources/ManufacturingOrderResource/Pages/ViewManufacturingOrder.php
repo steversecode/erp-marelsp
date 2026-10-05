@@ -8,6 +8,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Webkul\Chatter\Filament\Actions\ChatterAction;
 use Webkul\Manufacturing\Filament\Clusters\Operations\Actions\CancelAction;
 use Webkul\Manufacturing\Filament\Clusters\Operations\Actions\ConfirmAction;
+use Webkul\Manufacturing\Filament\Clusters\Operations\Actions\DoneAction;
 use Webkul\Manufacturing\Filament\Clusters\Operations\Actions\PlanAction;
 use Webkul\Manufacturing\Filament\Clusters\Operations\Actions\Print\PrintLabelsAction;
 use Webkul\Manufacturing\Filament\Clusters\Operations\Actions\Print\PrintMOAction;
@@ -48,6 +49,7 @@ class ViewManufacturingOrder extends ViewRecord
                 ->record($this->getRecord())
                 ->resource(static::$resource)
                 ->activityPlans($this->getRecord()->activityPlans()),
+            DoneAction::make('done'),
             ConfirmAction::make('confirm'),
             PlanAction::make('plan'),
             UnplanAction::make('unplan'),
@@ -64,5 +66,8 @@ class ViewManufacturingOrder extends ViewRecord
         ];
     }
 
-    public function updateForm(): void {}
+    public function updateForm(): void
+    {
+        $this->fillForm();
+    }
 }
