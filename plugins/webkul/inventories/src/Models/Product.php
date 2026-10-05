@@ -43,12 +43,14 @@ class Product extends BaseProduct
             'alert_time',
             'use_expiration_date',
             'responsible_id',
+            'allow_negative_stock',
         ]);
 
         $this->mergeCasts([
-            'tracking'            => ProductTracking::class,
-            'use_expiration_date' => 'boolean',
-            'is_storable'         => 'boolean',
+            'tracking'             => ProductTracking::class,
+            'use_expiration_date'  => 'boolean',
+            'is_storable'          => 'boolean',
+            'allow_negative_stock' => 'boolean',
         ]);
 
         parent::__construct($attributes);

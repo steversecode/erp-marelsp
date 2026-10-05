@@ -67,6 +67,7 @@ class Product extends Model implements Sortable
         'category_id',
         'company_id',
         'creator_id',
+        'allow_negative_stock',
     ];
 
     public function getModelTitle(): string

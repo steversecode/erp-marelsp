@@ -172,13 +172,13 @@ class ProductCategorySeeder extends Seeder
                                 $fullName = $webkulParent ? ($webkulParent->full_name . ' / ' . $part) : $part;
 
                                 $webkulId = DB::table('products_categories')->insertGetId([
-                                    'name'        => $part,
-                                    'full_name'   => $fullName,
+                                    'name' => $part,
+                                    'full_name' => $fullName,
                                     'parent_path' => $parentPath,
-                                    'parent_id'   => $webkulParentId,
-                                    'creator_id'  => $creatorId,
-                                    'created_at'  => now(),
-                                    'updated_at'  => now(),
+                                    'parent_id' => $webkulParentId,
+                                    'creator_id' => $creatorId,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
                                 ]);
                                 $webkulCache[$accumulatedPath] = $webkulId;
                             }
@@ -228,13 +228,13 @@ class ProductCategorySeeder extends Seeder
                         $webkulCache[$rawCategory] = $existing->id;
                     } else {
                         $webkulId = DB::table('products_categories')->insertGetId([
-                            'name'        => $rawCategory,
-                            'full_name'   => $rawCategory,
+                            'name' => $rawCategory,
+                            'full_name' => $rawCategory,
                             'parent_path' => '/',
-                            'parent_id'   => null,
-                            'creator_id'  => $creatorId,
-                            'created_at'  => now(),
-                            'updated_at'  => now(),
+                            'parent_id' => null,
+                            'creator_id' => $creatorId,
+                            'created_at' => now(),
+                            'updated_at' => now(),
                         ]);
                         $webkulCache[$rawCategory] = $webkulId;
                     }

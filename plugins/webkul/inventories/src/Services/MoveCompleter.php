@@ -3,6 +3,7 @@
 namespace Webkul\Inventory\Services;
 
 use Illuminate\Support\Collection;
+use Webkul\Inventory\Enums\LocationType;
 use Webkul\Inventory\Enums\MoveState;
 use Webkul\Inventory\Enums\OperationType;
 use Webkul\Inventory\Enums\ProcureMethod;
@@ -140,7 +141,44 @@ class MoveCompleter
 
         MoveLine::whereIn('id', $emptyLineIds)->get()->each(fn (MoveLine $line) => $line->delete());
 
-        $this->settleStock($lines->reject(fn (MoveLine $line) => $emptyLineIds->contains($line->id)));
+        $linesToSettle = $lines->reject(fn (MoveLine $line) => $emptyLineIds->contains($line->id));
+
+        $this->assertStockAvailability($linesToSettle);
+
+        $this->settleStock($linesToSettle);
+    }
+
+    protected function assertStockAvailability(Collection $lines): void
+    {
+        foreach ($lines as $line) {
+            if (
+                $line->is_inventory
+                || ! ($line->product?->is_storable ?? false)
+                || (bool) ($line->product?->allow_negative_stock ?? false)
+                || $line->sourceLocation?->type !== LocationType::INTERNAL
+            ) {
+                continue;
+            }
+
+            $availableQty = ProductQuantity::availableFor(
+                $line->product,
+                $line->sourceLocation,
+                lot: $line->lot,
+                package: $line->package,
+                strict: true,
+                allowNegative: true,
+            );
+
+            if (float_compare($availableQty - $line->uom_qty, 0.0, precisionRounding: $line->uom->rounding) < 0) {
+                throw new \Exception(__('Stok untuk produk ":product" di lokasi ":location" tidak mencukupi (Tersedia: :available :uom, Dibutuhkan: :required :uom), dan produk ini tidak mengizinkan stok negatif.', [
+                    'product'   => $line->product->name,
+                    'location'  => $line->sourceLocation->full_name ?? $line->sourceLocation->name,
+                    'available' => float_round($availableQty, precisionRounding: $line->uom->rounding),
+                    'required'  => float_round($line->uom_qty, precisionRounding: $line->uom->rounding),
+                    'uom'       => $line->uom?->name ?? '',
+                ]));
+            }
+        }
     }
 
     protected function assertRoundingPrecision(MoveLine $line): void

@@ -65,8 +65,14 @@ class InventoryProductSchema
                                     $set('tracking', ProductTracking::QTY->value);
 
                                     $set('use_expiration_date', false);
+                                    $set('allow_negative_stock', false);
                                 }
                             }),
+                        Toggle::make('allow_negative_stock')
+                            ->label(__('Allow Negative Stock'))
+                            ->helperText(__('Izinkan kuantitas stok produk ini menjadi minus saat pengeluaran/pergerakan barang.'))
+                            ->default(false)
+                            ->visible(fn (Get $get): bool => (bool) $get('is_storable')),
                         Select::make('tracking')
                             ->label(__('inventories::filament/clusters/products/resources/product.form.sections.inventory.fieldsets.tracking.fields.track-by'))
                             ->selectablePlaceholder(false)
@@ -155,10 +161,14 @@ class InventoryProductSchema
     {
         return Section::make(__('inventories::filament/clusters/products/resources/product.infolist.sections.inventory.title'))
             ->schema([
-                Grid::make(3)
+                Grid::make(4)
                     ->schema([
                         IconEntry::make('is_storable')
                             ->label(__('inventories::filament/clusters/products/resources/product.infolist.sections.inventory.fieldsets.tracking.entries.track-inventory'))
+                            ->boolean(),
+
+                        IconEntry::make('allow_negative_stock')
+                            ->label(__('Allow Negative Stock'))
                             ->boolean(),
 
                         TextEntry::make('tracking')
