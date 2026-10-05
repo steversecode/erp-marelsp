@@ -24,15 +24,40 @@
         display: none !important;
     }
 
+    /* Completely hide scrollbars across the entire viewport */
+    html,
+    body,
+    body.fi-body,
+    .fi-simple-layout,
+    .fi-simple-main-ctn,
+    .fi-simple-main {
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* IE and Edge */
+        overflow: hidden !important;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+        width: 0px !important;
+        height: 0px !important;
+        display: none !important;
+    }
+
     /* Outer Viewport Reset */
     html, body.fi-body {
         margin: 0 !important;
         padding: 0 !important;
+        height: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
         background-color: #F8FAFC !important;
         color: #0B1C30 !important;
         font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
         -webkit-font-smoothing: antialiased;
-        overflow-x: hidden !important;
+        overflow: hidden !important;
     }
 
     ::selection {
@@ -43,8 +68,11 @@
     /* Filament Layout Overrides */
     .fi-simple-layout {
         position: relative !important;
-        min-height: 100vh !important;
-        min-height: 100dvh !important;
+        height: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 !important;
@@ -65,6 +93,7 @@
         z-index: 10 !important;
         width: 100% !important;
         max-width: 100% !important;
+        height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         flex: 1 !important;
@@ -72,11 +101,13 @@
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
+        overflow: hidden !important;
     }
 
     .fi-simple-main {
         width: 100% !important;
         max-width: 100% !important;
+        height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
         background: transparent !important;
@@ -86,6 +117,7 @@
         -webkit-backdrop-filter: none !important;
         border-radius: 0 !important;
         animation: none !important;
+        overflow: hidden !important;
     }
 
     .fi-simple-header,
@@ -242,5 +274,12 @@
 
     .msp-btn-submit:hover .msp-arrow-icon {
         transform: translateX(0.125rem);
+    }
+
+    .msp-btn-content {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
 </style>

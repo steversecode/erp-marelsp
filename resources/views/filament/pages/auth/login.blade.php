@@ -94,23 +94,23 @@
             @this.set('data.password', this.newPassword);
         }
     }"
-    style="background-color: #F8FAFC; color: #0B1C30; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow-x: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif;"
+    style="background-color: #F8FAFC; color: #0B1C30; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif;"
 >
     <!-- Background ambient radial glow -->
     <div style="position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 40%, rgba(10,37,64,0.04), transparent 65%);"></div>
 
     <!-- Main Centered Sign-In Content -->
-    <main style="position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.25rem 1rem; width: 100%; box-sizing: border-box;">
+    <main style="position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem 1rem; width: 100%; box-sizing: border-box; overflow: hidden;">
         <div style="display: flex; flex-direction: column; width: 100%; align-items: center; justify-content: center; position: relative;">
             <!-- Colored background blurs -->
             <div style="position: absolute; top: -6rem; width: 20rem; height: 20rem; background-color: rgba(0, 112, 242, 0.05); border-radius: 9999px; filter: blur(48px); pointer-events: none;"></div>
             <div style="position: absolute; bottom: -5rem; width: 18rem; height: 18rem; background-color: rgba(252, 119, 40, 0.05); border-radius: 9999px; filter: blur(48px); pointer-events: none;"></div>
 
             <!-- Authentication Card (1:1 with LoginScreen.tsx) -->
-            <div style="width: 100%; max-width: 500px; background-color: #FFFFFF; border-radius: 0.75rem; box-shadow: 0 16px 36px -12px rgba(10,37,64,0.1); border: 1px solid #E2E8F0; padding: 1.5rem 1.75rem; position: relative; z-index: 10; box-sizing: border-box; transition: all 0.3s ease;">
+            <div style="width: 100%; max-width: 500px; background-color: #FFFFFF; border-radius: 0.75rem; box-shadow: 0 16px 36px -12px rgba(10,37,64,0.1); border: 1px solid #E2E8F0; padding: 1.375rem 1.75rem; position: relative; z-index: 10; box-sizing: border-box; transition: all 0.3s ease;">
                 <!-- Logo and Headings -->
                 <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-                    <div style="height: 2.75rem; padding: 0.25rem 0.875rem; border-radius: 0.5rem; background-color: #EFF4FF; border: 1px solid #DCE9FF; display: flex; align-items: center; justify-content: center; margin-bottom: 0.625rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);">
+                    <div style="height: 2.75rem; padding: 0.25rem 0.875rem; border-radius: 0.5rem; background-color: #EFF4FF; border: 1px solid #DCE9FF; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);">
                         <img 
                             src="{{ asset('images/logo-marel.webp') }}" 
                             alt="PT Marel Sukses Pratama Logo"
@@ -128,7 +128,7 @@
 
                 <!-- Validation Error Message Alert -->
                 @if ($errors->any())
-                    <div style="margin-top: 0.875rem; padding: 0.625rem 0.75rem; border-radius: 0.5rem; background-color: #FEF2F2; border: 1px solid #FECACA; font-size: 0.75rem; color: #B91C1C; display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 0.5rem; background-color: #FEF2F2; border: 1px solid #FECACA; font-size: 0.75rem; color: #B91C1C; display: flex; align-items: center; gap: 0.5rem;">
                         <span class="material-symbols-outlined" style="font-size: 16px; color: #DC2626;">error</span>
                         <span>{{ $errors->first() }}</span>
                     </div>
@@ -138,7 +138,7 @@
                 <form
                     id="form"
                     wire:submit="authenticate"
-                    style="margin-top: 1.125rem; display: flex; flex-direction: column; gap: 0.875rem;"
+                    style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;"
                 >
                     {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE) }}
 
@@ -256,19 +256,19 @@
                             wire:loading.attr="disabled"
                             class="msp-btn-submit"
                         >
-                            <span wire:loading.remove wire:target="authenticate" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <div wire:loading.remove wire:target="authenticate" class="msp-btn-content">
                                 <span>Sign in</span>
                                 <span class="material-symbols-outlined msp-arrow-icon" style="font-size: 17px; transition: transform 0.15s ease;">
                                     arrow_forward
                                 </span>
-                            </span>
-                            <span wire:loading wire:target="authenticate" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            </div>
+                            <div wire:loading.flex wire:target="authenticate" class="msp-btn-content" style="display: none;">
                                 <svg style="animation: spin 1s linear infinite; height: 1rem; width: 1rem; color: #FFFFFF;" fill="none" viewBox="0 0 24 24">
                                     <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 <span>Mengautentikasi...</span>
-                            </span>
+                            </div>
                         </button>
                     </div>
 
@@ -276,7 +276,7 @@
                 </form>
 
                 <!-- Sub-Card Status Strip (Inside Card) -->
-                <div style="margin-top: 1.25rem; padding: 0.625rem 1.75rem; background-color: rgba(239, 244, 255, 0.7); margin-left: -1.75rem; margin-right: -1.75rem; margin-bottom: -1.5rem; border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; border-top: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #64748B;">
+                <div style="margin-top: 1.125rem; padding: 0.625rem 1.75rem; background-color: rgba(239, 244, 255, 0.7); margin-left: -1.75rem; margin-right: -1.75rem; margin-bottom: -1.375rem; border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; border-top: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #64748B;">
                     <div style="display: flex; align-items: center; gap: 0.375rem; color: #334155; font-weight: 500;">
                         <span class="material-symbols-outlined" style="font-size: 14px; color: #0070F2;">
                             verified_user
@@ -294,7 +294,7 @@
             </div>
 
             <!-- Under-Card Security Badges -->
-            <div style="margin-top: 1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.875rem; font-size: 0.75rem; color: #64748B;">
+            <div style="margin-top: 0.875rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.875rem; font-size: 0.75rem; color: #64748B;">
                 <div style="display: flex; align-items: center; gap: 0.375rem;">
                     <span class="material-symbols-outlined" style="font-size: 15px; color: #475569;">
                         security
@@ -313,7 +313,7 @@
     </main>
 
     <!-- Global Page Footer -->
-    <footer style="position: relative; z-index: 10; width: 100%; padding: 0.75rem 1.5rem; padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); border-top: 1px solid #E2E8F0; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px);">
+    <footer style="position: relative; z-index: 10; width: 100%; padding: 0.625rem 1.5rem; border-top: 1px solid #E2E8F0; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px);">
         <div style="max-width: 80rem; margin: 0 auto; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.75rem; color: #64748B;">
             <div>
                 © {{ date('Y') }} PT Marel Sukses Pratama. All rights reserved. Enterprise Resource Planning Core.
