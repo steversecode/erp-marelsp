@@ -262,9 +262,10 @@ class PlanningByProduction extends Page
         for ($d = 0; $d < 7; $d++) {
             $day = (clone $start)->addDays($d);
             $columns[] = [
-                'label'    => $day->format('D'),
-                'sublabel' => $day->format('d M'),
-                'is_today' => $day->isToday(),
+                'label'      => $day->format('D'),
+                'sublabel'   => $day->format('d M'),
+                'is_today'   => $day->isToday(),
+                'is_weekend' => in_array($day->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]),
             ];
         }
 
@@ -281,9 +282,10 @@ class PlanningByProduction extends Page
         for ($d = 1; $d <= $daysInMonth; $d++) {
             $day = (clone $start)->day($d);
             $columns[] = [
-                'label'    => (string) $d,
-                'sublabel' => $day->format('D')[0],
-                'is_today' => $day->isToday(),
+                'label'      => (string) $d,
+                'sublabel'   => $day->format('D')[0],
+                'is_today'   => $day->isToday(),
+                'is_weekend' => in_array($day->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]),
             ];
         }
 

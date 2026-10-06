@@ -13,21 +13,31 @@
     @endphp
 
     <style>
-        /* Base & Dark mode color tokens for Gantt table */
+        /* Modern Scoped Gantt Design Tokens */
+        .gantt-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+        :is(.dark, [data-theme="dark"]) .gantt-card {
+            background-color: #0f172a !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
         .gantt-header {
             background-color: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
         }
         :is(.dark, [data-theme="dark"]) .gantt-header {
-            background-color: #111827 !important;
+            background-color: #1e293b !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
         .gantt-header-cell {
-            border-right: 1px solid #f1f5f9;
+            border-right: 1px solid #e2e8f0;
         }
         :is(.dark, [data-theme="dark"]) .gantt-header-cell {
-            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
         }
 
         .gantt-sidebar-cell {
@@ -37,19 +47,12 @@
             border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
-        .gantt-grid-line {
-            border-right: 1px solid #f1f5f9;
-        }
-        :is(.dark, [data-theme="dark"]) .gantt-grid-line {
-            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
-        }
-
         .gantt-wc-header-row {
             background-color: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
         }
         :is(.dark, [data-theme="dark"]) .gantt-wc-header-row {
-            background-color: rgba(255, 255, 255, 0.02) !important;
+            background-color: rgba(255, 255, 255, 0.03) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
         }
 
@@ -61,58 +64,83 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
         }
         .gantt-row:hover {
-            background-color: rgba(248, 250, 252, 0.8);
+            background-color: rgba(241, 245, 249, 0.6);
         }
         :is(.dark, [data-theme="dark"]) .gantt-row:hover {
             background-color: rgba(255, 255, 255, 0.02) !important;
         }
 
+        .gantt-grid-line {
+            border-right: 1px solid #f1f5f9;
+        }
+        :is(.dark, [data-theme="dark"]) .gantt-grid-line {
+            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+        }
+
+        .gantt-weekend-col {
+            background-color: rgba(241, 245, 249, 0.6);
+        }
+        :is(.dark, [data-theme="dark"]) .gantt-weekend-col {
+            background-color: rgba(255, 255, 255, 0.015) !important;
+        }
+
         .gantt-today-col {
-            background-color: rgba(59, 130, 246, 0.04) !important;
+            background-color: rgba(59, 130, 246, 0.05) !important;
         }
         :is(.dark, [data-theme="dark"]) .gantt-today-col {
             background-color: rgba(59, 130, 246, 0.08) !important;
         }
 
-        /* Modern, clean flat Gantt bars */
+        /* Modern Gantt Bars */
         .gantt-bar {
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             user-select: none;
             transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
         .gantt-bar:hover {
             transform: translateY(-1px);
-            filter: brightness(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 25;
+            filter: brightness(1.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            z-index: 30;
         }
 
         .gantt-bar-progress {
-            background-color: #d97706 !important;
-            border: 1px solid #f59e0b !important;
+            background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
+            border: 1px solid #fbbf24 !important;
             color: #ffffff !important;
         }
         .gantt-bar-ready, .gantt-bar-confirmed {
-            background-color: #2563eb !important;
-            border: 1px solid #3b82f6 !important;
+            background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
+            border: 1px solid #60a5fa !important;
             color: #ffffff !important;
         }
         .gantt-bar-done {
-            background-color: #059669 !important;
-            border: 1px solid #10b981 !important;
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+            border: 1px solid #34d399 !important;
             color: #ffffff !important;
         }
         .gantt-bar-overdue {
-            background-color: #e11d48 !important;
-            border: 1px solid #f43f5e !important;
+            background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%) !important;
+            border: 1px solid #fb7185 !important;
             color: #ffffff !important;
         }
         .gantt-bar-waiting, .gantt-bar-pending {
-            background-color: #475569 !important;
-            border: 1px solid #64748b !important;
+            background: linear-gradient(180deg, #64748b 0%, #475569 100%) !important;
+            border: 1px solid #94a3b8 !important;
             color: #ffffff !important;
+        }
+
+        /* Custom dropdown with guaranteed chevron icon */
+        .gantt-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.25em 1.25em;
+            padding-right: 2rem;
         }
 
         .gantt-tile {
@@ -126,17 +154,17 @@
     </style>
 
     <div class="space-y-4" x-data="{ tooltip: null }">
-        {{-- Unified Clean Control & KPI Bar --}}
-        <div class="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-xs overflow-hidden">
-            {{-- Main Navigation & Actions --}}
-            <div class="p-3 sm:px-4 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 dark:border-white/5">
+        {{-- Unified Executive Header Card --}}
+        <div class="gantt-card shadow-xs overflow-hidden">
+            {{-- Top Controls Bar --}}
+            <div class="p-3 sm:px-4 flex flex-wrap items-center justify-between gap-3">
                 {{-- Left: Date Navigation & Title --}}
                 <div class="flex items-center gap-3">
-                    <div class="inline-flex items-center rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50/70 dark:bg-white/[0.03] p-0.5">
+                    <div class="inline-flex items-center rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04] p-0.5">
                         <button
                             type="button"
                             wire:click="previous"
-                            class="p-1 rounded-md text-gray-600 hover:text-gray-900 hover:bg-white dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/10 transition"
+                            class="p-1.5 rounded-md text-gray-600 hover:text-gray-950 hover:bg-white dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/10 transition"
                             title="Previous"
                         >
                             <x-filament::icon icon="heroicon-m-chevron-left" class="w-4 h-4" />
@@ -144,14 +172,14 @@
                         <button
                             type="button"
                             wire:click="today"
-                            class="px-2.5 py-1 text-xs font-semibold text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400 rounded-md transition"
+                            class="px-3 py-1 text-xs font-semibold text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400 rounded-md transition"
                         >
                             Today
                         </button>
                         <button
                             type="button"
                             wire:click="next"
-                            class="p-1 rounded-md text-gray-600 hover:text-gray-900 hover:bg-white dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/10 transition"
+                            class="p-1.5 rounded-md text-gray-600 hover:text-gray-950 hover:bg-white dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/10 transition"
                             title="Next"
                         >
                             <x-filament::icon icon="heroicon-m-chevron-right" class="w-4 h-4" />
@@ -159,7 +187,7 @@
                     </div>
 
                     <div class="flex items-center gap-2 text-sm sm:text-base font-bold text-gray-950 dark:text-white">
-                        <x-filament::icon icon="heroicon-o-calendar" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                        <x-filament::icon icon="heroicon-o-calendar" class="w-4 h-4 text-primary-500" />
                         <span>{{ $data['period_title'] }}</span>
                     </div>
                 </div>
@@ -167,7 +195,7 @@
                 {{-- Right: View Mode, Filter, Search --}}
                 <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
                     {{-- Scale Switcher --}}
-                    <div class="inline-flex p-0.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50/70 dark:bg-white/[0.03]">
+                    <div class="inline-flex p-0.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04]">
                         <button
                             type="button"
                             wire:click="setViewMode('day')"
@@ -194,7 +222,7 @@
                     {{-- Status Filter --}}
                     <select
                         wire:model.live="statusFilter"
-                        class="py-1 px-2.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                        class="gantt-select py-1 pl-3 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 cursor-pointer"
                     >
                         <option value="all">All Status</option>
                         <option value="progress">In Progress</option>
@@ -210,65 +238,76 @@
                             type="text"
                             wire:model.live.debounce.300ms="search"
                             placeholder="Search WO, MO..."
-                            class="py-1 pl-7 pr-2.5 text-xs rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 w-36 sm:w-48"
+                            class="py-1 pl-8 pr-3 text-xs rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 w-36 sm:w-48"
                         />
-                        <x-filament::icon icon="heroicon-m-magnifying-glass" class="absolute w-3.5 h-3.5 text-gray-400 left-2 top-2 pointer-events-none" />
+                        <x-filament::icon icon="heroicon-m-magnifying-glass" class="absolute w-3.5 h-3.5 text-gray-400 left-2.5 top-2 pointer-events-none" />
                     </div>
                 </div>
             </div>
 
-            {{-- Compact Metrics Strip --}}
-            <div class="px-3.5 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs bg-gray-50/50 dark:bg-white/[0.015]">
-                <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">Work Orders: <strong class="text-gray-900 dark:text-white">{{ $stats['total_orders'] }}</strong></span>
-                    <span class="text-gray-300 dark:text-gray-700">|</span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        Ready: <strong class="text-blue-600 dark:text-blue-400">{{ $stats['ready'] }}</strong>
+            {{-- Seamless Metrics Sub-Bar (No ugly grey strip!) --}}
+            <div class="px-4 py-2.5 border-t border-gray-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.05] dark:text-gray-300">
+                        Work Orders: <strong class="ml-1 text-gray-950 dark:text-white">{{ $stats['total_orders'] }}</strong>
                     </span>
-                    <span class="text-gray-300 dark:text-gray-700">|</span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                        In Progress: <strong class="text-amber-600 dark:text-amber-400">{{ $stats['in_progress'] }}</strong>
+
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        Ready: <strong>{{ $stats['ready'] }}</strong>
                     </span>
-                    <span class="text-gray-300 dark:text-gray-700">|</span>
-                    <span class="inline-flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        Done: <strong class="text-emerald-600 dark:text-emerald-400">{{ $stats['done'] }}</strong>
+
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        In Progress: <strong>{{ $stats['in_progress'] }}</strong>
+                    </span>
+
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Done: <strong>{{ $stats['done'] }}</strong>
                     </span>
                 </div>
 
-                <div class="text-gray-500 dark:text-gray-400 text-xs font-medium">
-                    Planned Workload: <strong class="text-gray-900 dark:text-white font-semibold">{{ $stats['planned_hours'] }} Hours</strong>
+                <div class="text-gray-500 dark:text-gray-400 text-xs">
+                    Planned Workload: <strong class="text-gray-950 dark:text-white font-semibold">{{ $stats['planned_hours'] }} Hours</strong>
                 </div>
             </div>
         </div>
 
         {{-- Gantt Matrix Card --}}
-        <div class="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 shadow-xs overflow-hidden">
+        <div class="gantt-card shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
                 <div class="{{ $minWidth }}">
                     {{-- Header Row --}}
                     <div class="flex gantt-header">
                         {{-- Left Column Header --}}
-                        <div class="w-72 sm:w-80 shrink-0 px-4 py-2.5 text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400 gantt-sidebar-cell flex items-center">
-                            Work Center / Operations
+                        <div class="w-72 sm:w-80 shrink-0 px-4 py-2.5 text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400 gantt-sidebar-cell flex items-center justify-between">
+                            <span>Work Center / Operations</span>
+                            <span class="text-[10px] text-gray-400 font-normal lowercase">({{ count($rows) }})</span>
                         </div>
 
                         {{-- Timeline Columns Header --}}
                         <div class="flex-1 flex">
                             @foreach($columns as $col)
-                                <div class="flex-1 px-1 py-1.5 text-center gantt-header-cell last:border-r-0 {{ $col['is_today'] ? 'gantt-today-col' : '' }}">
+                                @php
+                                    $isWeekend = $col['is_weekend'] ?? false;
+                                    $colBg = $col['is_today'] ? 'gantt-today-col' : ($isWeekend ? 'gantt-weekend-col' : '');
+                                @endphp
+                                <div class="flex-1 px-1 py-1.5 text-center gantt-header-cell last:border-r-0 {{ $colBg }}">
                                     @if($col['is_today'])
-                                        <div class="inline-block px-1.5 py-0.5 rounded-full bg-primary-600 text-white font-bold text-[11px] leading-tight">
+                                        <div class="w-5 h-5 mx-auto rounded-full bg-primary-600 text-white font-bold text-[11px] flex items-center justify-center shadow-xs">
                                             {{ $col['label'] }}
                                         </div>
                                     @else
-                                        <div class="text-xs font-bold text-gray-700 dark:text-gray-300">{{ $col['label'] }}</div>
+                                        <div class="text-xs font-bold {{ $isWeekend ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300' }}">
+                                            {{ $col['label'] }}
+                                        </div>
                                     @endif
 
                                     @if(!empty($col['sublabel']))
-                                        <div class="text-[10px] text-gray-400 dark:text-gray-500 font-medium leading-none mt-0.5">{{ $col['sublabel'] }}</div>
+                                        <div class="text-[10px] font-medium leading-none mt-0.5 {{ $col['is_today'] ? 'text-primary-600 dark:text-primary-400 font-bold' : ($isWeekend ? 'text-gray-400 dark:text-gray-600' : 'text-gray-400 dark:text-gray-500') }}">
+                                            {{ $col['sublabel'] }}
+                                        </div>
                                     @endif
                                 </div>
                             @endforeach
@@ -284,35 +323,39 @@
 
                         {{-- Work Center Group Header Row --}}
                         <div class="flex gantt-wc-header-row">
-                            <div class="w-72 sm:w-80 shrink-0 px-3.5 sm:px-4 py-2 gantt-sidebar-cell flex items-center justify-between gap-2">
+                            <div class="w-72 sm:w-80 shrink-0 px-3.5 sm:px-4 py-2.5 gantt-sidebar-cell flex items-center justify-between gap-2">
                                 <div class="flex items-center gap-2 truncate">
-                                    <span class="w-2 h-2 rounded-full shrink-0 {{ $wc->working_state === \Webkul\Manufacturing\Enums\WorkCenterWorkingState::BLOCKED ? 'bg-rose-500' : 'bg-emerald-500' }}" title="{{ $wc->working_state instanceof \Webkul\Manufacturing\Enums\WorkCenterWorkingState ? $wc->working_state->getLabel() : 'Normal' }}"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full shrink-0 {{ $wc->working_state === \Webkul\Manufacturing\Enums\WorkCenterWorkingState::BLOCKED ? 'bg-rose-500' : 'bg-emerald-500' }}" title="{{ $wc->working_state instanceof \Webkul\Manufacturing\Enums\WorkCenterWorkingState ? $wc->working_state->getLabel() : 'Normal' }}"></span>
                                     <span class="font-bold text-xs text-gray-950 dark:text-white truncate">
                                         {{ $wc->name }}
                                     </span>
                                     @if($wc->code)
-                                        <span class="px-1 py-0.2 text-[9px] font-mono font-bold bg-gray-200 text-gray-700 rounded dark:bg-white/10 dark:text-gray-300">
+                                        <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-gray-200 text-gray-700 rounded dark:bg-white/10 dark:text-gray-300 border border-gray-300 dark:border-white/10">
                                             {{ $wc->code }}
                                         </span>
                                     @endif
                                 </div>
 
-                                <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 shrink-0">
+                                <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 shrink-0">
                                     {{ $row['planned_hours'] }}h • {{ $row['active_orders'] }} WO
                                 </span>
                             </div>
 
                             {{-- Work Center Header Background Track --}}
-                            <div class="flex-1 relative h-8">
+                            <div class="flex-1 relative h-9">
                                 <div class="absolute inset-0 flex pointer-events-none">
                                     @foreach($columns as $col)
-                                        <div class="flex-1 gantt-grid-line last:border-r-0 {{ $col['is_today'] ? 'gantt-today-col' : '' }}"></div>
+                                        @php
+                                            $isWeekend = $col['is_weekend'] ?? false;
+                                            $colBg = $col['is_today'] ? 'gantt-today-col' : ($isWeekend ? 'gantt-weekend-col' : '');
+                                        @endphp
+                                        <div class="flex-1 gantt-grid-line last:border-r-0 {{ $colBg }}"></div>
                                     @endforeach
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Scheduled Work Orders under this Work Center (Each has its OWN row to avoid overlapping) --}}
+                        {{-- Scheduled Work Orders under this Work Center (Each has its OWN row to completely avoid overlapping) --}}
                         @forelse($items as $item)
                             @php
                                 $barClass = match($item['state']) {
@@ -322,77 +365,118 @@
                                     'cancel'   => 'gantt-bar-overdue',
                                     default    => 'gantt-bar-waiting',
                                 };
+                                $isShortBar = $item['width_percent'] < 14;
                             @endphp
                             <div class="flex gantt-row">
                                 {{-- Sub-Row Left Item --}}
-                                <div class="w-72 sm:w-80 shrink-0 py-2 px-3.5 sm:px-4 pl-6 gantt-sidebar-cell flex flex-col justify-center">
+                                <div class="w-72 sm:w-80 shrink-0 py-2.5 px-3.5 sm:px-4 pl-6 gantt-sidebar-cell flex flex-col justify-center">
                                     <div class="flex items-center justify-between gap-1.5">
                                         <div class="flex items-center gap-1.5 truncate">
                                             <span class="text-gray-400 dark:text-gray-600 font-mono text-xs select-none">↳</span>
-                                            <span class="font-semibold text-xs text-gray-900 dark:text-gray-200 truncate" title="{{ $item['mo_name'] }}: {{ $item['name'] }}">
+                                            <span class="font-bold text-xs text-gray-900 dark:text-gray-200 truncate" title="{{ $item['mo_name'] }}: {{ $item['name'] }}">
                                                 {{ $item['mo_name'] }}: {{ $item['name'] }}
                                             </span>
                                         </div>
 
-                                        <span class="px-1.5 py-0.5 text-[9px] font-semibold rounded shrink-0 {{ $item['color_theme']['badge'] ?? 'bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300' }}">
-                                            {{ $item['state_label'] }}
-                                        </span>
+                                        {{-- Filament-Style Status Pill --}}
+                                        @if($item['state'] === 'progress')
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/25 shrink-0">
+                                                <span class="w-1 h-1 rounded-full bg-amber-500 animate-pulse"></span>
+                                                In Progress
+                                            </span>
+                                        @elseif($item['state'] === 'done')
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/25 shrink-0">
+                                                <span class="w-1 h-1 rounded-full bg-emerald-500"></span>
+                                                Done
+                                            </span>
+                                        @elseif($item['state'] === 'ready')
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/25 shrink-0">
+                                                <span class="w-1 h-1 rounded-full bg-blue-500"></span>
+                                                Ready
+                                            </span>
+                                        @else
+                                            <span class="px-1.5 py-0.5 text-[9px] font-semibold rounded-full shrink-0 {{ $item['color_theme']['badge'] ?? 'bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-300' }}">
+                                                {{ $item['state_label'] }}
+                                            </span>
+                                        @endif
                                     </div>
 
-                                    <div class="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 pl-4 mt-0.5 truncate">
-                                        <span class="font-medium text-gray-600 dark:text-gray-400">{{ $item['duration_hours'] }}h</span>
+                                    <div class="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 pl-4 mt-1 truncate">
+                                        <span class="font-bold text-gray-700 dark:text-gray-300">{{ $item['duration_hours'] }}h</span>
                                         <span>•</span>
                                         <span class="truncate">{{ $item['product_name'] }}</span>
                                     </div>
                                 </div>
 
                                 {{-- Sub-Row Dedicated Timeline Track --}}
-                                <div class="flex-1 relative h-11">
+                                <div class="flex-1 relative h-14">
                                     {{-- Background Grid Lines --}}
                                     <div class="absolute inset-0 flex pointer-events-none">
                                         @foreach($columns as $col)
-                                            <div class="flex-1 gantt-grid-line last:border-r-0 {{ $col['is_today'] ? 'gantt-today-col' : '' }}"></div>
+                                            @php
+                                                $isWeekend = $col['is_weekend'] ?? false;
+                                                $colBg = $col['is_today'] ? 'gantt-today-col' : ($isWeekend ? 'gantt-weekend-col' : '');
+                                            @endphp
+                                            <div class="flex-1 gantt-grid-line last:border-r-0 {{ $colBg }}"></div>
                                         @endforeach
                                     </div>
 
-                                    {{-- Individual Work Order Bar --}}
+                                    {{-- Individual Work Order Bar Wrapper --}}
                                     <div
-                                        wire:click="openWorkOrderModal({{ $item['id'] }})"
-                                        class="absolute top-2 bottom-2 px-2.5 py-0.5 flex items-center justify-between gap-1.5 overflow-hidden gantt-bar {{ $barClass }}"
+                                        class="absolute top-2.5 bottom-2.5"
                                         style="left: {{ $item['left_percent'] }}%; width: {{ max(3.5, $item['width_percent']) }}%;"
-                                        x-on:mouseenter="tooltip = {{ json_encode($item) }}"
-                                        x-on:mouseleave="tooltip = null"
                                     >
-                                        <div class="flex items-center gap-1.5 truncate">
-                                            @if($item['is_in_progress'])
-                                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping shrink-0"></span>
-                                            @elseif($item['is_done'])
-                                                <svg class="w-3 h-3 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                            @endif
-                                            <span class="font-bold text-xs text-white truncate drop-shadow-xs">
-                                                @if($item['width_percent'] >= 10)
-                                                    {{ $item['mo_name'] }}: {{ $item['name'] }}
-                                                @else
-                                                    {{ $item['mo_name'] }}
+                                        {{-- Clickable Gantt Bar --}}
+                                        <div
+                                            wire:click="openWorkOrderModal({{ $item['id'] }})"
+                                            class="w-full h-full px-2.5 flex items-center justify-between gap-1.5 overflow-hidden gantt-bar {{ $barClass }}"
+                                            x-on:mouseenter="tooltip = {{ json_encode($item) }}"
+                                            x-on:mouseleave="tooltip = null"
+                                        >
+                                            <div class="flex items-center gap-1.5 truncate">
+                                                @if($item['is_in_progress'])
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping shrink-0"></span>
+                                                @elseif($item['is_done'])
+                                                    <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                                 @endif
+
+                                                @if(! $isShortBar)
+                                                    <span class="font-bold text-xs text-white truncate drop-shadow-xs">
+                                                        {{ $item['mo_name'] }}: {{ $item['name'] }}
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            <span class="shrink-0 text-[10px] font-bold bg-black/25 text-white rounded px-1.5 py-0.5 leading-none">
+                                                {{ $item['duration_hours'] }}h
                                             </span>
                                         </div>
 
-                                        <span class="shrink-0 text-[10px] font-bold bg-black/25 text-white rounded px-1 py-0.2 leading-none">
-                                            {{ $item['duration_hours'] }}h
-                                        </span>
+                                        {{-- Exterior Label for Short Bars (Effortless Readability!) --}}
+                                        @if($isShortBar)
+                                            <div class="absolute left-full ml-2.5 top-0 bottom-0 flex items-center pointer-events-none whitespace-nowrap z-20">
+                                                <span class="text-xs font-semibold text-gray-800 dark:text-gray-200 drop-shadow-xs flex items-center gap-1.5">
+                                                    <span>{{ $item['mo_name'] }}:</span>
+                                                    <span class="text-gray-500 dark:text-gray-400 font-medium">{{ $item['name'] }}</span>
+                                                </span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                         @empty
                             <div class="flex gantt-row opacity-60">
-                                <div class="w-72 sm:w-80 shrink-0 py-2 px-3.5 sm:px-4 pl-6 gantt-sidebar-cell flex items-center text-xs text-gray-400 dark:text-gray-500 italic">
+                                <div class="w-72 sm:w-80 shrink-0 py-2.5 px-3.5 sm:px-4 pl-6 gantt-sidebar-cell flex items-center text-xs text-gray-400 dark:text-gray-500 italic">
                                     No operations scheduled in this period
                                 </div>
                                 <div class="flex-1 relative h-9">
                                     <div class="absolute inset-0 flex pointer-events-none">
                                         @foreach($columns as $col)
-                                            <div class="flex-1 gantt-grid-line last:border-r-0 {{ $col['is_today'] ? 'gantt-today-col' : '' }}"></div>
+                                            @php
+                                                $isWeekend = $col['is_weekend'] ?? false;
+                                                $colBg = $col['is_today'] ? 'gantt-today-col' : ($isWeekend ? 'gantt-weekend-col' : '');
+                                            @endphp
+                                            <div class="flex-1 gantt-grid-line last:border-r-0 {{ $colBg }}"></div>
                                         @endforeach
                                     </div>
                                 </div>
@@ -415,7 +499,7 @@
             x-transition:enter="transition ease-out duration-100"
             x-transition:enter-start="opacity-0 scale-95"
             x-transition:enter-end="opacity-100 scale-100"
-            class="fixed bottom-6 right-6 z-40 max-w-sm p-4 bg-gray-900/95 backdrop-blur-md text-white rounded-xl shadow-2xl border border-white/10 pointer-events-none text-xs space-y-1.5"
+            class="fixed bottom-6 right-6 z-50 max-w-sm p-4 bg-gray-900/95 backdrop-blur-md text-white rounded-xl shadow-2xl border border-white/10 pointer-events-none text-xs space-y-1.5"
         >
             <div class="font-bold text-sm text-primary-400" x-text="tooltip ? tooltip.mo_name + ' — ' + tooltip.name : ''"></div>
             <div class="text-gray-300"><span class="text-gray-400">Product:</span> <span class="font-medium" x-text="tooltip ? tooltip.product_name : ''"></span></div>
