@@ -371,8 +371,8 @@ class QuotationForm
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.product'))
                     ->resizable()
                     ->wrapHeader(false)
-                    ->width(280)
-                    ->minWidth(200)
+                    ->width(380)
+                    ->minWidth(300)
                     ->markAsRequired()
                     ->toggleable(),
                 TableColumn::make('product_qty')
@@ -493,7 +493,13 @@ class QuotationForm
                             ->where(owned_by_company($get('../../company_id'))),
                     )
                     ->getOptionLabelFromRecordUsing(function ($record): string {
-                        return $record->name.($record->trashed() ? ' (Deleted)' : '');
+                        $label = $record->name;
+
+                        if (filled($record->reference) && ! str_contains($label, $record->reference)) {
+                            $label = "[{$record->reference}] {$label}";
+                        }
+
+                        return $label.($record->trashed() ? ' (Deleted)' : '');
                     })
                     ->selectablePlaceholder(false)
                     ->searchable()
@@ -501,7 +507,10 @@ class QuotationForm
                     ->live()
                     ->required()
                     ->dehydrated(true)
-                    ->wrapOptionLabels(false)
+                    ->wrapOptionLabels(true)
+                    ->extraAttributes([
+                        'style' => 'min-width: 300px;',
+                    ])
                     ->disabled(fn (Get $get): bool => filled($get('id')) && in_array($record?->state, [OrderState::SALE, OrderState::CANCEL]))
                     ->disableOptionWhen(function ($label, $value, $state, $component) {
                         $isDeleted = str_contains($label, ' (Deleted)');
@@ -808,7 +817,8 @@ class QuotationForm
             ->table([
                 TableColumn::make('product_id')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.product-optional.columns.product'))
-                    ->width(300)
+                    ->width(380)
+                    ->minWidth(300)
                     ->markAsRequired()
                     ->toggleable()
                     ->resizable(),
@@ -848,9 +858,18 @@ class QuotationForm
                     ->preload()
                     ->live()
                     ->dehydrated(true)
-                    ->wrapOptionLabels(false)
+                    ->wrapOptionLabels(true)
+                    ->extraAttributes([
+                        'style' => 'min-width: 300px;',
+                    ])
                     ->getOptionLabelFromRecordUsing(function ($record): string {
-                        return $record->name.($record->trashed() ? ' (Deleted)' : '');
+                        $label = $record->name;
+
+                        if (filled($record->reference) && ! str_contains($label, $record->reference)) {
+                            $label = "[{$record->reference}] {$label}";
+                        }
+
+                        return $label.($record->trashed() ? ' (Deleted)' : '');
                     })
                     ->disableOptionWhen(function ($value, $state, $component, $label) {
                         if (str_contains($label, ' (Deleted)')) {
