@@ -582,11 +582,33 @@
                                     $allClusters = filament()->getCurrentPanel()?->getClusters() ?? [];
                                     $clusterLookup = [];
                                     foreach ($allClusters as $cClass) {
+                                        // Skip global Settings cluster from navbar dropdown expansion
+                                        if (
+                                            $cClass === \Webkul\Support\Filament\Clusters\Settings::class ||
+                                            is_subclass_of($cClass, \Webkul\Support\Filament\Clusters\Settings::class) ||
+                                            str_ends_with($cClass, '\Clusters\Settings')
+                                        ) {
+                                            continue;
+                                        }
+
                                         try {
                                             $cLabel = $cClass::getNavigationLabel();
                                             $cUrl = $cClass::getUrl();
-                                            $clusterLookup[$cLabel] = $cClass;
-                                            $clusterLookup[$cUrl] = $cClass;
+                                            $cGroup = $cClass::getNavigationGroup();
+                                            $cGroupLabel = $cGroup instanceof \UnitEnum ? $cGroup->value : (string) $cGroup;
+
+                                            if ($cUrl) {
+                                                $clusterLookup[$cUrl] = $cClass;
+                                                $clusterLookup[url($cUrl)] = $cClass;
+                                            }
+
+                                            if ($cGroupLabel && $cLabel) {
+                                                $clusterLookup[$cGroupLabel . '::' . $cLabel] = $cClass;
+                                            }
+
+                                            if ($cLabel) {
+                                                $clusterLookup[$cLabel] ??= $cClass;
+                                            }
                                         } catch (\Throwable $e) {}
                                     }
                                 @endphp
@@ -603,14 +625,22 @@
                                         $itemUrl = $item->getUrl();
                                         $itemLabel = $item->getLabel();
 
-                                        $matchedCluster = $clusterLookup[$itemLabel] ?? $clusterLookup[$itemUrl] ?? null;
+                                        $isSettingMenu = in_array(strtolower(trim($itemLabel ?? '')), ['settings', 'setting', 'pengaturan', 'konfigurasi sistem']);
+
+                                        $groupKey = $groupLabel ? $groupLabel . '::' . $itemLabel : null;
+                                        $matchedCluster = $isSettingMenu ? null : (
+                                            ($groupKey ? ($clusterLookup[$groupKey] ?? null) : null)
+                                            ?? ($clusterLookup[$itemUrl] ?? null)
+                                            ?? ($clusterLookup[url($itemUrl ?? '')] ?? null)
+                                        );
+
                                         $subItems = [];
 
                                         if ($matchedCluster) {
                                             foreach ($matchedCluster::getClusteredComponents() as $component) {
                                                 try {
                                                     if (is_subclass_of($component, \Filament\Resources\Resource::class)) {
-                                                        if (! $component::canViewAny()) {
+                                                        if (! $component::shouldRegisterNavigation() || ! $component::canViewAny()) {
                                                             continue;
                                                         }
                                                         $subUrl = $component::getUrl('index');
@@ -622,7 +652,7 @@
                                                             'sort'     => $component::getNavigationSort() ?? 0,
                                                         ];
                                                     } elseif (is_subclass_of($component, \Filament\Pages\Page::class)) {
-                                                        if (! $component::canAccess()) {
+                                                        if (! $component::shouldRegisterNavigation() || ! $component::canAccess()) {
                                                             continue;
                                                         }
                                                         $subUrl = $component::getUrl();
