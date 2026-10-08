@@ -12,6 +12,7 @@ use Webkul\Inventory\Models\Product;
 use Webkul\Inventory\Models\Rule;
 use Webkul\Inventory\Support\ProcurementRequest;
 use Webkul\Inventory\Support\StockScope;
+use Webkul\PluginManager\Package;
 use Webkul\Product\Enums\ProductType;
 
 class ProcurementRunner
@@ -193,7 +194,81 @@ class ProcurementRunner
 
     protected function runBuyRules(Collection $pairs): void {}
 
-    protected function runManufactureRules(Collection $pairs): void {}
+    protected function runManufactureRules(Collection $pairs): void
+    {
+        if (! Package::isPluginInstalled('manufacturing')) {
+            return;
+        }
+
+        foreach ($pairs as [$request, $rule]) {
+            $bom = \Webkul\Manufacturing\Models\BillOfMaterial::query()
+                ->where('product_id', $request->product->id)
+                ->where(function ($q) use ($rule, $request) {
+                    $q->whereNull('company_id')
+                        ->orWhere('company_id', $rule->company_id ?? $request->company?->id);
+                })
+                ->first();
+
+            if (! $bom) {
+                $bom = \Webkul\Manufacturing\Models\BillOfMaterial::query()
+                    ->where('product_id', $request->product->id)
+                    ->first();
+            }
+
+            $warehouse = $rule->warehouse
+                ?? \Webkul\Inventory\Models\Warehouse::find($rule->warehouse_id)
+                ?? \Webkul\Inventory\Models\Warehouse::where('company_id', $rule->company_id)->first()
+                ?? \Webkul\Inventory\Models\Warehouse::first();
+
+            $operationType = $rule->operationType
+                ?? \Webkul\Inventory\Models\OperationType::find($warehouse?->manu_type_id);
+
+            $sourceLocationId = $operationType?->source_location_id ?? $warehouse?->lot_stock_location_id;
+            $destLocationId = $rule->destination_location_id ?? $operationType?->destination_location_id ?? $warehouse?->lot_stock_location_id;
+            $prodLocationId = $rule->source_location_id
+                ?? Location::where('type', \Webkul\Inventory\Enums\LocationType::PRODUCTION)->where('company_id', $rule->company_id)->first()?->id;
+
+            $options = $request->options;
+            $scheduledAt = ($options->plannedDate() ?? now())->copy()->subDays($rule->delay ?? 0);
+            $deadline = $options->deadlineDate()?->copy()->subDays($rule->delay ?? 0);
+
+            $mo = \Webkul\Manufacturing\Models\Order::create([
+                'product_id'              => $request->product->id,
+                'quantity'                => $request->quantity,
+                'product_uom_qty'         => $request->quantity,
+                'uom_id'                  => $request->uom->id,
+                'bill_of_material_id'     => $bom?->id,
+                'consumption'             => $bom?->consumption ?? \Webkul\Manufacturing\Enums\BillOfMaterialConsumption::FLEXIBLE,
+                'state'                   => \Webkul\Manufacturing\Enums\ManufacturingOrderState::DRAFT,
+                'origin'                  => $request->origin,
+                'warehouse_id'            => $warehouse?->id,
+                'operation_type_id'       => $operationType?->id,
+                'source_location_id'      => $sourceLocationId,
+                'destination_location_id' => $destLocationId,
+                'production_location_id'  => $prodLocationId,
+                'company_id'              => $rule->company_id ?? $request->company?->id,
+                'procurement_group_id'    => $options->procurementGroup()?->id,
+                'deadline_at'             => $deadline,
+                'started_at'              => $scheduledAt,
+            ]);
+
+            $mo->refresh()->computeFinishedMoves();
+
+            foreach ($mo->getMovesRawValues() as $values) {
+                \Webkul\Manufacturing\Models\Move::create($values);
+            }
+
+            $destinations = $options->moveDestinations();
+            if ($destinations && $destinations->isNotEmpty()) {
+                $finishedMove = $mo->finishedMoves()->first();
+                if ($finishedMove) {
+                    $finishedMove->moveDestinations()->attach($destinations->pluck('id')->all());
+                }
+            }
+
+            app(\Webkul\Manufacturing\Services\OrderWorkflow::class)->confirm($mo);
+        }
+    }
 
     public function buildMoveAttributes(Rule $rule, ProcurementRequest $request): array
     {

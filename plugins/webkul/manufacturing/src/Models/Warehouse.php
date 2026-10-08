@@ -283,7 +283,7 @@ class Warehouse extends BaseWarehouse
                 ManufactureStep::TWO_STEPS   => $this->name.': Pick components and then manufacture (2 steps)',
                 ManufactureStep::THREE_STEPS => $this->name.': Pick components, manufacture and then store products (3 steps)',
             },
-            'product_selectable'          => false,
+            'product_selectable'          => true,
             'product_category_selectable' => true,
             'warehouse_selectable'        => true,
             'packaging_selectable'        => false,
@@ -297,6 +297,25 @@ class Warehouse extends BaseWarehouse
         $productionLocation = Location::where('type', LocationType::PRODUCTION)
             ->where('company_id', $this->company_id)
             ->first();
+
+        $this->manufactureRuleIds[] = $this->manufacture_pull_id = Rule::create([
+            'sort'                     => 14,
+            'name'                     => $this->code.': Manufacture',
+            'route_sort'               => 10,
+            'group_propagation_option' => GroupPropagation::PROPAGATE,
+            'action'                   => RuleAction::MANUFACTURE,
+            'procure_method'           => ProcureMethod::MAKE_TO_ORDER,
+            'auto'                     => RuleAuto::MANUAL,
+            'propagate_cancel'         => false,
+            'propagate_carrier'        => false,
+            'source_location_id'       => $productionLocation->id,
+            'destination_location_id'  => $this->lot_stock_location_id,
+            'route_id'                 => $this->pbm_route_id,
+            'operation_type_id'        => $this->manu_type_id,
+            'creator_id'               => $this->creator_id,
+            'company_id'               => $this->company_id,
+            'deleted_at'               => null,
+        ])->id;
 
         $this->manufactureRuleIds[] = Rule::create([
             'sort'                     => 15,
@@ -430,7 +449,8 @@ class Warehouse extends BaseWarehouse
                 ManufactureStep::TWO_STEPS   => $this->name.': Pick components and then manufacture (2 steps)',
                 ManufactureStep::THREE_STEPS => $this->name.': Pick components, manufacture and then store products (3 steps)',
             },
-            'deleted_at' => $this->manufacture_steps === ManufactureStep::ONE_STEP ? now() : null,
+            'deleted_at'         => null,
+            'product_selectable' => true,
         ]);
 
         $productionLocation = Location::where('type', LocationType::PRODUCTION)

@@ -6,12 +6,14 @@ use BackedEnum;
 use Filament\Resources\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Webkul\PluginManager\Package;
 use Webkul\Sale\Enums\OrderState;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\OrderResource\Pages\CreateOrder;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\OrderResource\Pages\EditOrder;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\OrderResource\Pages\ListOrders;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\OrderResource\Pages\ManageDeliveries;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\OrderResource\Pages\ManageInvoices;
+use Webkul\Sale\Filament\Clusters\Orders\Resources\OrderResource\Pages\ManageManufacturingOrders;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\OrderResource\Pages\ViewOrder;
 use Webkul\Sale\Models\Order;
 
@@ -45,17 +47,23 @@ class OrderResource extends QuotationResource
 
     public static function getRecordSubNavigation(Page $page): array
     {
-        return $page->generateNavigationItems([
+        $items = [
             ViewOrder::class,
             EditOrder::class,
             ManageInvoices::class,
             ManageDeliveries::class,
-        ]);
+        ];
+
+        if (Package::isPluginInstalled('manufacturing')) {
+            $items[] = ManageManufacturingOrders::class;
+        }
+
+        return $page->generateNavigationItems($items);
     }
 
     public static function getPages(): array
     {
-        return [
+        $pages = [
             'index'      => ListOrders::route('/'),
             'create'     => CreateOrder::route('/create'),
             'view'       => ViewOrder::route('/{record}'),
@@ -63,6 +71,12 @@ class OrderResource extends QuotationResource
             'invoices'   => ManageInvoices::route('/{record}/invoices'),
             'operations' => ManageDeliveries::route('/{record}/deliveries'),
         ];
+
+        if (Package::isPluginInstalled('manufacturing')) {
+            $pages['manufacturing'] = ManageManufacturingOrders::route('/{record}/manufacturing');
+        }
+
+        return $pages;
     }
 
     public static function getEloquentQuery(): Builder

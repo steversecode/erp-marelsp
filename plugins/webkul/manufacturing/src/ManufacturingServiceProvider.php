@@ -89,6 +89,7 @@ class ManufacturingServiceProvider extends PackageServiceProvider
                 '2026_04_02_000003_alter_inventories_moves_table',
                 '2026_04_02_000004_alter_inventories_move_lines_table',
                 '2026_08_03_130000_seed_manufacturing_sequences',
+                '2026_10_08_143000_add_manufacture_rule_to_warehouses',
             ])
             ->runsMigrations()
             ->hasSettings([

@@ -252,6 +252,11 @@ class Order extends Model
         return $this->hasMany(Operation::class, 'sale_order_id');
     }
 
+    public function manufacturingOrders(): HasMany
+    {
+        return $this->hasMany(\Webkul\Manufacturing\Models\Order::class, 'procurement_group_id', 'procurement_group_id');
+    }
+
     public function updateName()
     {
         if (filled($this->name)) {

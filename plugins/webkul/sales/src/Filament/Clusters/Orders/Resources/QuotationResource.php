@@ -17,6 +17,8 @@ use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages\EditQ
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages\ListQuotations;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages\ManageDeliveries;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages\ManageInvoices;
+use Webkul\PluginManager\Package;
+use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages\ManageManufacturingOrders;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages\ViewQuotation;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Schemas\QuotationForm;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Schemas\QuotationInfolist;
@@ -88,17 +90,23 @@ class QuotationResource extends Resource
 
     public static function getRecordSubNavigation(Page $page): array
     {
-        return $page->generateNavigationItems([
+        $items = [
             ViewQuotation::class,
             EditQuotation::class,
             ManageInvoices::class,
             ManageDeliveries::class,
-        ]);
+        ];
+
+        if (Package::isPluginInstalled('manufacturing')) {
+            $items[] = ManageManufacturingOrders::class;
+        }
+
+        return $page->generateNavigationItems($items);
     }
 
     public static function getPages(): array
     {
-        return [
+        $pages = [
             'index'      => ListQuotations::route('/'),
             'create'     => CreateQuotation::route('/create'),
             'view'       => ViewQuotation::route('/{record}'),
@@ -106,6 +114,12 @@ class QuotationResource extends Resource
             'invoices'   => ManageInvoices::route('/{record}/invoices'),
             'operations' => ManageDeliveries::route('/{record}/deliveries'),
         ];
+
+        if (Package::isPluginInstalled('manufacturing')) {
+            $pages['manufacturing'] = ManageManufacturingOrders::route('/{record}/manufacturing');
+        }
+
+        return $pages;
     }
 
     public static function getEloquentQuery(): Builder
