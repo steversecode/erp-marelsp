@@ -3,7 +3,9 @@
 namespace Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages;
 
 use Filament\Notifications\Notification;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Enums\Width;
 use Webkul\Sale\Facades\SaleOrder;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource;
 use Webkul\Support\Filament\Concerns\HandlesCrossCompanyException;
@@ -18,9 +20,19 @@ class CreateQuotation extends CreateRecord
 
     protected ?bool $hasDatabaseTransactions = true;
 
+    public function getMaxContentWidth(): Width|string|null
+    {
+        return Width::Full;
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('edit', ['record' => $this->getRecord()]);
+    }
+
+    public static function getSubNavigationPosition(): SubNavigationPosition
+    {
+        return SubNavigationPosition::Top;
     }
 
     public function getSubNavigation(): array

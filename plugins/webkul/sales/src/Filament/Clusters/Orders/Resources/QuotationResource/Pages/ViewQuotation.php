@@ -5,6 +5,7 @@ namespace Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Enums\Width;
 use Webkul\Chatter\Filament\Actions\ChatterAction;
 use Webkul\Sale\Enums\OrderState;
 use Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource;
@@ -18,6 +19,11 @@ class ViewQuotation extends ViewRecord
     use HasRepeatableEntryColumnManager;
 
     protected static string $resource = QuotationResource::class;
+
+    public function getMaxContentWidth(): Width|string|null
+    {
+        return Width::Full;
+    }
 
     protected function getHeaderActions(): array
     {

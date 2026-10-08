@@ -5,6 +5,7 @@ namespace Webkul\Sale\Filament\Clusters\Orders\Resources\QuotationResource\Pages
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
 use Webkul\Chatter\Filament\Actions\ChatterAction;
 use Webkul\Sale\Enums\OrderState;
 use Webkul\Sale\Facades\SaleOrder;
@@ -25,6 +26,11 @@ class EditQuotation extends EditRecord
     protected static string $resource = QuotationResource::class;
 
     protected ?bool $hasDatabaseTransactions = true;
+
+    public function getMaxContentWidth(): Width|string|null
+    {
+        return Width::Full;
+    }
 
     protected function getSavedNotification(): ?Notification
     {

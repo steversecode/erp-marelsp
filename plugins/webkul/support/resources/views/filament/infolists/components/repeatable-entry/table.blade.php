@@ -9,7 +9,7 @@
     $hasColumnManager = $hasColumnManager();
 
     $attributes = $getExtraAttributeBag()
-        ->class(['fi-fo-table-repeater', 'fi-compact']);
+        ->class(['fi-fo-table-repeater', 'fi-compact', 'overflow-x-auto']);
 
     $hasSummary = $hasAnySummarizers();
     $hasResizableColumns = collect($tableColumns)->contains(fn (TableColumn $column) => $column->isResizable());
@@ -43,7 +43,7 @@
 @else
     <div {{ $attributes }}>
         <table
-            class="fi-absolute-positioning-context overflow-hidden"
+            class="fi-absolute-positioning-context min-w-full"
             @if ($hasResizableColumns)
                 x-data="{
                     columns: @js($resizableColumnConfig),

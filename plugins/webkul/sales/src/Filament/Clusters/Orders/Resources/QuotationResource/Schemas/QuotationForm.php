@@ -18,6 +18,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\View\Components\InputComponent\WrapperComponent\IconComponent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -370,19 +371,24 @@ class QuotationForm
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.product'))
                     ->resizable()
                     ->wrapHeader(false)
-                    ->width(300)
+                    ->width(280)
+                    ->minWidth(200)
                     ->markAsRequired()
                     ->toggleable(),
                 TableColumn::make('product_qty')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.quantity'))
                     ->markAsRequired()
                     ->resizable()
+                    ->width(110)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false),
                 TableColumn::make('qty_delivered')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.qty-delivered'))
                     ->toggleable()
                     ->markAsRequired()
                     ->resizable()
+                    ->width(110)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false)
                     ->visible(fn () => in_array($record?->state, [OrderState::SALE])),
                 TableColumn::make('qty_invoiced')
@@ -390,6 +396,8 @@ class QuotationForm
                     ->markAsRequired()
                     ->toggleable()
                     ->resizable()
+                    ->width(110)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false)
                     ->visible(fn () => in_array($record?->state, [OrderState::SALE])),
                 TableColumn::make('product_uom_id')
@@ -397,6 +405,8 @@ class QuotationForm
                     ->toggleable()
                     ->markAsRequired()
                     ->resizable()
+                    ->width(110)
+                    ->alignment(Alignment::Center)
                     ->wrapHeader(false)
                     ->visible(fn () => settings(ProductSettings::class)->enable_uom),
                 TableColumn::make('customer_lead')
@@ -404,51 +414,70 @@ class QuotationForm
                     ->markAsRequired()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->resizable()
+                    ->width(110)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false),
                 TableColumn::make('product_packaging_qty')
                     ->toggleable()
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.packaging-qty'))
                     ->resizable()
+                    ->width(120)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false)
                     ->visible(fn () => settings(ProductSettings::class)->enable_packagings),
                 TableColumn::make('product_packaging_id')
                     ->toggleable()
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.packaging'))
                     ->resizable()
+                    ->width(150)
                     ->wrapHeader(false)
                     ->visible(fn () => settings(ProductSettings::class)->enable_packagings),
                 TableColumn::make('price_unit')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.unit-price'))
                     ->markAsRequired()
                     ->resizable()
+                    ->width(150)
+                    ->minWidth(130)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false),
                 TableColumn::make('margin')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.margin'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->resizable()
+                    ->width(130)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false)
                     ->visible(fn () => settings(PriceSettings::class)->enable_margin),
                 TableColumn::make('margin_percent')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.margin-percentage'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->resizable()
+                    ->width(110)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false)
                     ->visible(fn () => settings(PriceSettings::class)->enable_margin),
                 TableColumn::make('taxes')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.taxes'))
                     ->toggleable()
                     ->resizable()
+                    ->width(120)
+                    ->alignment(Alignment::Center)
                     ->wrapHeader(false),
                 TableColumn::make('discount')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.discount-percentage'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->resizable()
+                    ->width(110)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false)
                     ->visible(fn () => settings(PriceSettings::class)->enable_discount),
                 TableColumn::make('price_subtotal')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.columns.amount'))
                     ->toggleable()
                     ->resizable()
+                    ->width(170)
+                    ->minWidth(150)
+                    ->alignment(Alignment::End)
                     ->wrapHeader(false),
             ])
             ->schema(fn ($record) => [
@@ -507,6 +536,7 @@ class QuotationForm
                     ->default(1)
                     ->numeric()
                     ->maxValue(99999999999)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums'])
                     ->live(onBlur: true)
                     ->suffix(function ($record, Get $get): mixed {
                         if (! Package::isPluginInstalled('inventories')) {
@@ -589,6 +619,7 @@ class QuotationForm
                     ->default(0)
                     ->numeric()
                     ->maxValue(99999999999)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums'])
                     ->live(onBlur: true)
                     ->disabled(fn (Get $get, $record): bool => (! filled($get('id')) && in_array($get('../../state'), [OrderState::SALE->value, OrderState::SALE])) || $record?->order->locked || in_array($record?->order->state, [OrderState::CANCEL]) || $record?->qty_delivered_method == QtyDeliveredMethod::STOCK_MOVE)
                     ->visible(fn (): bool => in_array($record?->state, [OrderState::SALE])),
@@ -598,6 +629,7 @@ class QuotationForm
                     ->default(0)
                     ->numeric()
                     ->maxValue(99999999999)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums'])
                     ->live(onBlur: true)
                     ->disabled()
                     ->visible(fn (): bool => in_array($record?->state, [OrderState::SALE])),
@@ -659,6 +691,7 @@ class QuotationForm
                     ->default(0)
                     ->minValue(0)
                     ->maxValue(99999999999)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums whitespace-nowrap'])
                     ->required()
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (Set $set, Get $get) => self::calculateLineTotals($set, $get))
@@ -668,6 +701,7 @@ class QuotationForm
                     ->numeric()
                     ->default(0)
                     ->maxValue(99999999999)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums whitespace-nowrap'])
                     ->visible(fn (PriceSettings $settings) => $settings->enable_margin)
                     ->readonly(),
                 TextInput::make('margin_percent')
@@ -675,6 +709,7 @@ class QuotationForm
                     ->numeric()
                     ->default(0)
                     ->maxValue(100)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums'])
                     ->visible(fn (PriceSettings $settings) => $settings->enable_margin)
                     ->readonly(),
                 Select::make('taxes')
@@ -699,6 +734,7 @@ class QuotationForm
                     ->default(0)
                     ->minValue(0)
                     ->maxValue(100)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums'])
                     ->live(onBlur: true)
                     ->visible(fn (PriceSettings $settings) => $settings->enable_discount)
                     ->afterStateUpdated(fn (Set $set, Get $get) => self::calculateLineTotals($set, $get))
@@ -706,6 +742,7 @@ class QuotationForm
                 TextInput::make('price_subtotal')
                     ->label(__('sales::filament/clusters/orders/resources/quotation.form.tabs.order-line.repeater.products.fields.amount'))
                     ->default(0)
+                    ->extraInputAttributes(['class' => 'text-end font-mono tabular-nums whitespace-nowrap font-semibold'])
                     ->disabled(),
                 Hidden::make('product_uom_qty')
                     ->default(0),

@@ -59,6 +59,6 @@ trait HasRecordNavigationTabs
 
     public static function getSubNavigationPosition(): SubNavigationPosition
     {
-        return SubNavigationPosition::Start;
+        return SubNavigationPosition::Top;
     }
 }

@@ -1,5 +1,5 @@
 .fi-fo-table-repeater {
-    @apply grid gap-3 p-2;
+    @apply grid gap-3 p-2 overflow-x-auto;
 
     scrollbar-width: thin;
     scrollbar-color: rgb(156 163 175) transparent;

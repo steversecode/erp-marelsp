@@ -3,6 +3,7 @@
 namespace Webkul\Sale\Filament\Clusters\Orders\Resources;
 
 use BackedEnum;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
 use Filament\Tables\Table;
 use Webkul\Invoice\Filament\Clusters\Customers\Resources\CustomerResource as BaseCustomerResource;
@@ -30,6 +31,11 @@ class CustomerResource extends BaseCustomerResource
     protected static ?string $cluster = Orders::class;
 
     protected static ?int $navigationSort = 3;
+
+    public static function getSubNavigationPosition(): SubNavigationPosition
+    {
+        return SubNavigationPosition::Top;
+    }
 
     public static function getModelLabel(): string
     {

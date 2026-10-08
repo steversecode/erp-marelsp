@@ -57,12 +57,13 @@
                 ->class([
                     'fi-fo-table-repeater',
                     'fi-compact' => $isCompact,
+                    'overflow-x-auto',
                 ]) 
         }}
     >
         @if (count($items))
             <table
-                class="fi-absolute-positioning-context"
+                class="fi-absolute-positioning-context min-w-full"
                 @if ($hasResizableColumns)
                     x-data="{
                         columns: @js($resizableColumnConfig),

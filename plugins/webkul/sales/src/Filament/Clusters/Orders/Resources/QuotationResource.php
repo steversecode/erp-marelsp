@@ -3,6 +3,7 @@
 namespace Webkul\Sale\Filament\Clusters\Orders\Resources;
 
 use BackedEnum;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -35,6 +36,11 @@ class QuotationResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $cluster = Orders::class;
+
+    public static function getSubNavigationPosition(): SubNavigationPosition
+    {
+        return SubNavigationPosition::Top;
+    }
 
     public static function getModelLabel(): string
     {
