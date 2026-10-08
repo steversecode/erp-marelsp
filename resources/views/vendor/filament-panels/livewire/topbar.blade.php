@@ -578,6 +578,19 @@
                                     </span>
                                 </li>
 
+                                @php
+                                    $allClusters = filament()->getCurrentPanel()?->getClusters() ?? [];
+                                    $clusterLookup = [];
+                                    foreach ($allClusters as $cClass) {
+                                        try {
+                                            $cLabel = $cClass::getNavigationLabel();
+                                            $cUrl = $cClass::getUrl();
+                                            $clusterLookup[$cLabel] = $cClass;
+                                            $clusterLookup[$cUrl] = $cClass;
+                                        } catch (\Throwable $e) {}
+                                    }
+                                @endphp
+
                                 @foreach ($group->getItems() as $item)
                                     @php
                                         $isItemActive = $item->isActive();
@@ -588,20 +601,105 @@
                                         $itemIcon = $item->getIcon();
                                         $shouldItemOpenUrlInNewTab = $item->shouldOpenUrlInNewTab();
                                         $itemUrl = $item->getUrl();
+                                        $itemLabel = $item->getLabel();
+
+                                        $matchedCluster = $clusterLookup[$itemLabel] ?? $clusterLookup[$itemUrl] ?? null;
+                                        $subItems = [];
+
+                                        if ($matchedCluster) {
+                                            foreach ($matchedCluster::getClusteredComponents() as $component) {
+                                                try {
+                                                    if (is_subclass_of($component, \Filament\Resources\Resource::class)) {
+                                                        if (! $component::canViewAny()) {
+                                                            continue;
+                                                        }
+                                                        $subUrl = $component::getUrl('index');
+                                                        $subItems[] = [
+                                                            'label'    => $component::getNavigationLabel() ?: \Illuminate\Support\Str::ucfirst($component::getPluralModelLabel()),
+                                                            'url'      => $subUrl,
+                                                            'icon'     => $component::getNavigationIcon(),
+                                                            'isActive' => request()->fullUrlIs($subUrl.'*'),
+                                                            'sort'     => $component::getNavigationSort() ?? 0,
+                                                        ];
+                                                    } elseif (is_subclass_of($component, \Filament\Pages\Page::class)) {
+                                                        if (! $component::canAccess()) {
+                                                            continue;
+                                                        }
+                                                        $subUrl = $component::getUrl();
+                                                        $subItems[] = [
+                                                            'label'    => $component::getNavigationLabel(),
+                                                            'url'      => $subUrl,
+                                                            'icon'     => method_exists($component, 'getNavigationIcon') ? $component::getNavigationIcon() : null,
+                                                            'isActive' => request()->fullUrlIs($subUrl.'*'),
+                                                            'sort'     => method_exists($component, 'getNavigationSort') ? $component::getNavigationSort() : 0,
+                                                        ];
+                                                    }
+                                                } catch (\Throwable $e) {}
+                                            }
+
+                                            usort($subItems, fn ($a, $b) => ($a['sort'] ?? 0) <=> ($b['sort'] ?? 0));
+                                        }
+
+                                        $hasActiveSubItem = collect($subItems)->contains('isActive', true);
                                     @endphp
 
-                                    <x-filament-panels::topbar.item
-                                        :active="$isItemActive"
-                                        :active-icon="$itemActiveIcon"
-                                        :badge="$itemBadge"
-                                        :badge-color="$itemBadgeColor"
-                                        :badge-tooltip="$itemBadgeTooltip"
-                                        :icon="$itemIcon"
-                                        :should-open-url-in-new-tab="$shouldItemOpenUrlInNewTab"
-                                        :url="$itemUrl"
-                                    >
-                                        {{ $item->getLabel() }}
-                                    </x-filament-panels::topbar.item>
+                                    @if ($matchedCluster && count($subItems) > 1)
+                                        <x-filament::dropdown
+                                            placement="bottom-start"
+                                            teleport
+                                        >
+                                            <x-slot name="trigger">
+                                                <button
+                                                    type="button"
+                                                    @class([
+                                                        'fi-topbar-item-btn flex items-center gap-x-1.5 rounded-lg px-3 py-2 text-sm font-medium transition duration-75 outline-none',
+                                                        'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' => $isItemActive || $hasActiveSubItem,
+                                                        'text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/5' => ! ($isItemActive || $hasActiveSubItem),
+                                                    ])
+                                                >
+                                                    @if ($itemIcon)
+                                                        <x-filament::icon
+                                                            :icon="$itemIcon"
+                                                            class="fi-topbar-item-icon h-4 w-4"
+                                                        />
+                                                    @endif
+
+                                                    <span>{{ $itemLabel }}</span>
+
+                                                    <x-filament::icon
+                                                        icon="heroicon-m-chevron-down"
+                                                        class="h-3 w-3 opacity-60 ml-0.5"
+                                                    />
+                                                </button>
+                                            </x-slot>
+
+                                            <x-filament::dropdown.list>
+                                                @foreach ($subItems as $sub)
+                                                    <x-filament::dropdown.list.item
+                                                        :color="$sub['isActive'] ? 'primary' : 'gray'"
+                                                        :href="$sub['url']"
+                                                        :icon="$sub['icon']"
+                                                        tag="a"
+                                                    >
+                                                        {{ $sub['label'] }}
+                                                    </x-filament::dropdown.list.item>
+                                                @endforeach
+                                            </x-filament::dropdown.list>
+                                        </x-filament::dropdown>
+                                    @else
+                                        <x-filament-panels::topbar.item
+                                            :active="$isItemActive || $hasActiveSubItem"
+                                            :active-icon="$itemActiveIcon"
+                                            :badge="$itemBadge"
+                                            :badge-color="$itemBadgeColor"
+                                            :badge-tooltip="$itemBadgeTooltip"
+                                            :icon="$itemIcon"
+                                            :should-open-url-in-new-tab="$shouldItemOpenUrlInNewTab"
+                                            :url="$itemUrl"
+                                        >
+                                            {{ $itemLabel }}
+                                        </x-filament-panels::topbar.item>
+                                    @endif
                                 @endforeach
                             @else
                                 <x-filament::dropdown
