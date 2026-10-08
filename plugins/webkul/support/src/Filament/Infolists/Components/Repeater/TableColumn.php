@@ -92,6 +92,27 @@ class TableColumn extends Component
         return (bool) $this->evaluate($this->isResizable);
     }
 
+    public function minWidth(int|string|Closure|null $minWidth): static
+    {
+        $this->minWidth = $minWidth;
+
+        return $this;
+    }
+
+    public function maxWidth(int|string|Closure|null $maxWidth): static
+    {
+        $this->maxWidth = $maxWidth;
+
+        return $this;
+    }
+
+    public function wrapHeader(bool|Closure $condition = false): static
+    {
+        $this->canHeaderWrap = $condition;
+
+        return $this;
+    }
+
     public function getMinWidth(): ?string
     {
         $minWidth = $this->evaluate($this->minWidth);
