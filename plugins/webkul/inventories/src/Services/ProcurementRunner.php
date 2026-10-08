@@ -258,7 +258,7 @@ class ProcurementRunner
                 \Webkul\Manufacturing\Models\Move::create($values);
             }
 
-            $destinations = $options->moveDestinations();
+            $destinations = $options->destinationMoves();
             if ($destinations && $destinations->isNotEmpty()) {
                 $finishedMove = $mo->finishedMoves()->first();
                 if ($finishedMove) {
