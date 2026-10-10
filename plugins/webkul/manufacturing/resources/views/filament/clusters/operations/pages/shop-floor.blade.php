@@ -252,11 +252,11 @@
     </style>
 
     <div class="space-y-4 sf-root" x-data="{ isFullscreen: false }">
-        {{- -Top Industrial Header Bar - -}}
+        {{--Top Industrial Header Bar --}}
         <div class="sf-card p-4 space-y-3.5">
-            {{- -Top Controls: Title, Station Tabs, Operator, Fullscreen - -}}
+            {{--Top Controls: Title, Station Tabs, Operator, Fullscreen --}}
             <div class="flex flex-wrap items-center justify-between gap-3">
-                {{- -Left: Logo / Title & Clock - -}}
+                {{--Left: Logo / Title & Clock --}}
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 rounded-xl bg-primary-600 text-white shadow-xs">
                         <x-filament::icon icon="heroicon-o-computer-desktop" class="w-5 h-5"/>
@@ -278,9 +278,9 @@
                     </div>
                 </div>
 
-                {{- -Right: Barcode Scanner, Active Operator, Fullscreen Button - -}}
+                {{--Right: Barcode Scanner, Active Operator, Fullscreen Button --}}
                 <div class="flex flex-wrap items-center gap-2.5">
-                    {{- -Barcode / RFID Input - -}}
+                    {{--Barcode / RFID Input --}}
                     <form wire:submit.prevent="handleBarcodeInput" class="relative">
                         <input
                             type="text"
@@ -291,7 +291,7 @@
                         <x-filament::icon icon="heroicon-m-qr-code" class="absolute w-4 h-4 text-primary-500 left-2.5 top-2.5 pointer-events-none"/>
                     </form>
 
-                    {{- -Operator Switcher Button - -}}
+                    {{--Operator Switcher Button --}}
                     <button
                         type="button"
                         wire:click="toggleOperatorModal"
@@ -305,7 +305,7 @@
                         <x-filament::icon icon="heroicon-m-arrows-right-left" class="w-3.5 h-3.5 text-gray-400"/>
                     </button>
 
-                    {{- -Fullscreen Toggle Button(Tablet Friendly) - -}}
+                    {{--Fullscreen Toggle Button(Tablet Friendly) --}}
                     <button
                         type="button"
                         x-on:click="
@@ -325,7 +325,7 @@
                 </div>
             </div>
 
-            {{- -Work Center Horizontal Filter Tabs(Odoo Style) - -}}
+            {{--Work Center Horizontal Filter Tabs(Odoo Style) --}}
             <div class="pt-2 border-t border-gray-100 dark:border-white/5 flex items-center gap-2 overflow-x-auto pb-1">
                 <button
                     type="button"
@@ -360,7 +360,7 @@
                 @endforeach
             </div>
 
-            {{- -Secondary Sub - Bar: Status Chips & Search - -}}
+            {{--Secondary Sub - Bar: Status Chips & Search --}}
             <div class="pt-2 border-t border-gray-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div class="flex flex-wrap items-center gap-1.5">
                     <button
@@ -408,7 +408,7 @@
                     </button>
                 </div>
 
-                {{- -Search Filter Input - -}}
+                {{--Search Filter Input --}}
                 <div class="relative">
                     <input
                         type="text"
@@ -421,7 +421,7 @@
             </div>
         </div>
 
-        {{- -Shop Floor Work Orders Grid Cards - -}}
+        {{--Shop Floor Work Orders Grid Cards --}}
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             @forelse($cards as $card)
                 @php
@@ -444,7 +444,7 @@
                 @endphp
 
                 <div class="sf-card p-4.5 flex flex-col justify-between gap-3.5 {{ $cardClass }}">
-                    {{- -Card Top: Header & Status - -}}
+                    {{--Card Top: Header & Status --}}
                     <div>
                         <div class="flex items-start justify-between gap-2">
                             <div class="truncate">
@@ -485,13 +485,13 @@
                             </div>
                         </div>
 
-                        {{- -Product & Variant Information - -}}
+                        {{--Product & Variant Information --}}
                         <div class="mt-2.5 p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5">
                             <div class="font-semibold text-xs text-gray-900 dark:text-white truncate">
                                 {{ $card['product_name'] }}
                             </div>
 
-                            {{- -Target & Produced Stepper - -}}
+                            {{--Target & Produced Stepper --}}
                             <div class="mt-2 flex items-center justify-between gap-2">
                                 <div class="flex items-center gap-1.5">
                                     <span class="text-[11px] text-gray-500">Output:</span>
@@ -500,7 +500,7 @@
                                     </strong>
                                 </div>
 
-                                {{- -Touch Quantity Steppers - -}}
+                                {{--Touch Quantity Steppers --}}
                                 @if(!$isDone)
                                     <div class="flex items-center gap-1">
                                         <button
@@ -531,7 +531,7 @@
                                 @endif
                             </div>
 
-                            {{- -Visual Progress Bar - -}}
+                            {{--Visual Progress Bar --}}
                             <div class="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full mt-2 overflow-hidden">
                                 <div
                                     class="h-full rounded-full transition-all duration-300 {{ $isDone ? 'bg-emerald-500' : ($isProgress ? 'bg-amber-500' : 'bg-primary-600') }}"
@@ -540,7 +540,7 @@
                             </div>
                         </div>
 
-                        {{- -Dependencies / Blockers Alert - -}}
+                        {{--Dependencies / Blockers Alert --}}
                         @if($isBlocked)
                             <div class="mt-2.5 p-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200/50 dark:border-rose-800/50 flex items-center gap-2 text-xs text-rose-700 dark:text-rose-300">
                                 <x-filament::icon icon="heroicon-m-lock-closed" class="w-4 h-4 shrink-0 text-rose-500"/>
@@ -550,7 +550,7 @@
                             </div>
                         @endif
 
-                        {{- -Active Operator Indicator on this Card - -}}
+                        {{--Active Operator Indicator on this Card --}}
                         @if($isProgress && $card['active_worker_name'])
                             <div class="mt-2 flex items-center justify-between text-xs text-amber-700 dark:text-amber-400">
                                 <span class="flex items-center gap-1 font-medium">
@@ -569,7 +569,7 @@
                         @endif
                     </div>
 
-                    {{- -Card Bottom: Touch Action Buttons - -}}
+                    {{--Card Bottom: Touch Action Buttons --}}
                     <div class="pt-2.5 border-t border-gray-100 dark:border-white/5 flex items-center gap-2">
                         @if($isReady)
                             <button
@@ -624,7 +624,7 @@
                             </button>
                         @endif
 
-                        {{- -Details Inspection Button - -}}
+                        {{--Details Inspection Button --}}
                         <button
                             type="button"
                             wire:click="openDetailModal({{ $card['id'] }})"
@@ -655,14 +655,14 @@
             @endforelse
         </div>
 
-        {{- -Work Order Detail Inspection Modal - -}}
+        {{--Work Order Detail Inspection Modal --}}
         @if($selectedWo)
             <div
                 class="sf-modal-backdrop"
                 wire:click.self="closeDetailModal"
             >
                 <div class="sf-modal-dialog">
-                    {{- -Modal Header - -}}
+                    {{--Modal Header --}}
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]">
                         <div class="flex items-center gap-3">
                             <div class="p-2 rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-950/50 dark:text-primary-400">
@@ -701,9 +701,9 @@
                         </button>
                     </div>
 
-                    {{- -Modal Body - -}}
+                    {{--Modal Body --}}
                     <div class="p-6 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
-                        {{- -3 - Box Summary Grid - -}}
+                        {{--3 - Box Summary Grid --}}
                         <div class="grid grid-cols-3 gap-3">
                             <div class="sf-tile">
                                 <div class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Product</div>
@@ -736,7 +736,7 @@
                             </div>
                         </div>
 
-                        {{- -Components to Consume for this Operation - -}}
+                        {{--Components to Consume for this Operation --}}
                         @if($selectedWo->manufacturingOrder?->moveRaw?->isNotEmpty())
                             <div class="sf-tile space-y-2">
                                 <div class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
@@ -757,7 +757,7 @@
                             </div>
                         @endif
 
-                        {{- -Dependencies Section - -}}
+                        {{--Dependencies Section --}}
                         <div class="sf-tile space-y-2">
                             <div class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Sequential Dependencies</div>
                             @if($selectedWo->blockedByWorkOrders->isNotEmpty())
@@ -781,7 +781,7 @@
                             @endif
                         </div>
 
-                        {{- -Alternative Work Centers Reassignment - -}}
+                        {{--Alternative Work Centers Reassignment --}}
                         @if($selectedWo->workCenter?->alternativeWorkCenters?->isNotEmpty() && !in_array($selectedWo->state?->value ?? (string) $selectedWo->state, ['done', 'cancel']))
                             <div class="sf-tile space-y-2">
                                 <div class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
@@ -806,7 +806,7 @@
                         @endif
                     </div>
 
-                    {{- -Modal Footer with Action Buttons - -}}
+                    {{--Modal Footer with Action Buttons --}}
                     <div class="flex items-center justify-between px-6 py-3.5 border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]">
                         <div class="flex items-center gap-2">
                             @if(in_array($selectedWo->state?->value ?? (string) $selectedWo->state, ['ready', 'waiting', 'pending']))
@@ -855,7 +855,7 @@
             </div>
         @endif
 
-        {{- -Switch Operator Modal - -}}
+        {{--Switch Operator Modal --}}
         @if($showOperatorModal)
             <div
                 class="sf-modal-backdrop"
