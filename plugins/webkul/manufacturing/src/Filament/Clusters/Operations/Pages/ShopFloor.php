@@ -5,6 +5,7 @@ namespace Webkul\Manufacturing\Filament\Clusters\Operations\Pages;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Webkul\Manufacturing\Enums\ManufacturingOrderState;
@@ -67,9 +68,9 @@ class ShopFloor extends Page
         return 'Shop Floor';
     }
 
-    public function getMaxContentWidth(): \Filament\Support\Enums\MaxWidth|string|null
+    public function getMaxContentWidth(): Width|string|null
     {
-        return 'full';
+        return Width::Full;
     }
 
     public function mount(): void
