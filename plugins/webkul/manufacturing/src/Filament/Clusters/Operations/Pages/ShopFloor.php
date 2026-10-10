@@ -32,7 +32,9 @@ class ShopFloor extends Page
 
     public ?int $selectedWorkCenterId = null;
 
-    public string $statusFilter = 'ready'; // 'ready', 'progress', 'waiting', 'done', 'all'
+    public string $statusFilter = 'ready_and_running'; // 'ready_and_running', 'ready', 'progress', 'waiting', 'done', 'all'
+
+    public bool $onlyMyWork = false;
 
     public string $search = '';
 
@@ -43,6 +45,8 @@ class ShopFloor extends Page
     public ?int $activeOperatorId = null;
 
     public bool $showOperatorModal = false;
+
+    public array $recordQtys = [];
 
     public static function isDiscovered(): bool
     {
@@ -75,9 +79,38 @@ class ShopFloor extends Page
 
     public function setStatusFilter(string $status): void
     {
-        if (in_array($status, ['ready', 'progress', 'waiting', 'done', 'all'])) {
+        if (in_array($status, ['ready_and_running', 'ready', 'progress', 'waiting', 'done', 'all'])) {
             $this->statusFilter = $status;
         }
+    }
+
+    public function toggleMyWork(): void
+    {
+        $this->onlyMyWork = ! $this->onlyMyWork;
+    }
+
+    public function saveRecordedQty(int $id): void
+    {
+        $qty = isset($this->recordQtys[$id]) ? (float) $this->recordQtys[$id] : null;
+        if ($qty === null) {
+            return;
+        }
+
+        $workOrder = WorkOrder::find($id);
+        if (! $workOrder) {
+            return;
+        }
+
+        $workOrder->update(['quantity_produced' => $qty]);
+        if ($workOrder->manufacturingOrder) {
+            $workOrder->manufacturingOrder->update(['quantity_producing' => $qty]);
+        }
+
+        Notification::make()
+            ->title('Quantity Recorded')
+            ->body("Recorded {$qty} for {$workOrder->name}.")
+            ->success()
+            ->send();
     }
 
     public function openDetailModal(int $id): void
@@ -476,7 +509,11 @@ class ShopFloor extends Page
             }
 
             // Apply status filter
-            if ($this->statusFilter === 'ready' && $stateVal !== WorkOrderState::READY->value) {
+            if ($this->statusFilter === 'ready_and_running') {
+                if (! in_array($stateVal, [WorkOrderState::READY->value, WorkOrderState::PROGRESS->value])) {
+                    continue;
+                }
+            } elseif ($this->statusFilter === 'ready' && $stateVal !== WorkOrderState::READY->value) {
                 continue;
             } elseif ($this->statusFilter === 'progress' && $stateVal !== WorkOrderState::PROGRESS->value) {
                 continue;
@@ -484,6 +521,15 @@ class ShopFloor extends Page
                 continue;
             } elseif ($this->statusFilter === 'done' && $stateVal !== WorkOrderState::DONE->value) {
                 continue;
+            }
+
+            // My work filter
+            if ($this->onlyMyWork) {
+                $isMyWo = $wo->manufacturingOrder?->assigned_user_id === Auth::id()
+                    || $wo->productivityLogs->contains(fn ($l) => $l->assigned_user_id === Auth::id());
+                if (! $isMyWo) {
+                    continue;
+                }
             }
 
             // Dependencies
@@ -500,6 +546,10 @@ class ShopFloor extends Page
             $producedQty = (float) ($wo->quantity_produced ?: $wo->manufacturingOrder?->quantity_producing ?: 0);
             $progressPct = $targetQty > 0 ? min(100, round(($producedQty / $targetQty) * 100)) : 0;
 
+            if (! isset($this->recordQtys[$wo->id])) {
+                $this->recordQtys[$wo->id] = (int) $producedQty;
+            }
+
             // Active timers & worker logs
             $activeLog = $wo->productivityLogs->first(fn ($log) => ! $log->finished_at);
             $activeWorkerName = $activeLog?->assignedUser?->name;
@@ -515,6 +565,7 @@ class ShopFloor extends Page
                 'name'                    => $wo->name,
                 'mo_id'                   => $wo->manufacturing_order_id,
                 'mo_name'                 => $wo->manufacturingOrder?->name ?? '—',
+                'source'                  => $wo->manufacturingOrder?->source ?? $wo->manufacturingOrder?->origin ?? $wo->manufacturingOrder?->name ?? '—',
                 'work_center_id'          => $wo->work_center_id,
                 'work_center_name'        => $wo->workCenter?->name ?? 'Unassigned',
                 'work_center_code'        => $wo->workCenter?->code,
