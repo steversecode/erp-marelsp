@@ -15,31 +15,23 @@
             font-family: inherit;
         }
 
-        /* 6 Cards per Row Grid */
+        /* 6 Cards per Row Grid (Exact Odoo Style) */
         .sf-grid-6 {
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
-            gap: 12px;
+            gap: 10px;
         }
-        @media (max-width: 1600px) {
-            .sf-grid-6 {
-                grid-template-columns: repeat(6, minmax(180px, 1fr));
-                overflow-x: auto;
-                padding-bottom: 8px;
-            }
-        }
-        @media (max-width: 1280px) {
+        @media (max-width: 1180px) {
             .sf-grid-6 {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
-                overflow-x: visible;
             }
         }
-        @media (max-width: 768px) {
+        @media (max-width: 720px) {
             .sf-grid-6 {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
-        @media (max-width: 520px) {
+        @media (max-width: 480px) {
             .sf-grid-6 {
                 grid-template-columns: repeat(1, minmax(0, 1fr));
             }

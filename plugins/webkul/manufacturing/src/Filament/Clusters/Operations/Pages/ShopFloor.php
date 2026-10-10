@@ -67,6 +67,11 @@ class ShopFloor extends Page
         return 'Shop Floor';
     }
 
+    public function getMaxContentWidth(): \Filament\Support\Enums\MaxWidth|string|null
+    {
+        return 'full';
+    }
+
     public function mount(): void
     {
         $this->activeOperatorId = Auth::id();
