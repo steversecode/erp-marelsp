@@ -3,12 +3,16 @@
 namespace Webkul\Manufacturing\Filament\Clusters\Planning\Pages;
 
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Livewire\Attributes\Computed;
 use Webkul\Manufacturing\Enums\ManufacturingOrderState;
 use Webkul\Manufacturing\Enums\WorkOrderState;
+use Webkul\Manufacturing\Facades\Manufacturing;
 use Webkul\Manufacturing\Filament\Clusters\Planning;
 use Webkul\Manufacturing\Models\Order;
+use Webkul\Manufacturing\Models\WorkCenter;
+use Webkul\Manufacturing\Models\WorkOrder;
 
 class PlanningByProduction extends Page
 {
@@ -26,9 +30,15 @@ class PlanningByProduction extends Page
 
     public string $statusFilter = 'all';
 
+    public ?int $workCenterFilter = null;
+
     public string $search = '';
 
     public ?int $selectedOrderId = null;
+
+    public ?int $selectedWorkOrderId = null;
+
+    public array $expandedOrderIds = [];
 
     public static function getNavigationLabel(): string
     {
@@ -79,6 +89,26 @@ class PlanningByProduction extends Page
         $this->currentDate = now()->toDateString();
     }
 
+    public function toggleExpandOrder(int $id): void
+    {
+        if (in_array($id, $this->expandedOrderIds)) {
+            $this->expandedOrderIds = array_values(array_diff($this->expandedOrderIds, [$id]));
+        } else {
+            $this->expandedOrderIds[] = $id;
+        }
+    }
+
+    public function expandAll(): void
+    {
+        $visibleOrderIds = collect($this->timelineData['rows'])->pluck('order.id')->all();
+        $this->expandedOrderIds = array_unique(array_merge($this->expandedOrderIds, $visibleOrderIds));
+    }
+
+    public function collapseAll(): void
+    {
+        $this->expandedOrderIds = [];
+    }
+
     public function openOrderModal(int $id): void
     {
         $this->selectedOrderId = $id;
@@ -87,6 +117,103 @@ class PlanningByProduction extends Page
     public function closeOrderModal(): void
     {
         $this->selectedOrderId = null;
+    }
+
+    public function openWorkOrderModal(int $id): void
+    {
+        $this->selectedWorkOrderId = $id;
+    }
+
+    public function closeWorkOrderModal(): void
+    {
+        $this->selectedWorkOrderId = null;
+    }
+
+    public function planOrder(int $id): void
+    {
+        try {
+            $order = Order::findOrFail($id);
+
+            Manufacturing::planManufacturingOrder($order);
+
+            Notification::make()
+                ->title(__('Order Planned Successfully'))
+                ->body(__("Manufacturing order :name and its operations have been scheduled according to work center calendars.", ['name' => $order->name]))
+                ->success()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title(__('Planning Failed'))
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function unplanOrder(int $id): void
+    {
+        try {
+            $order = Order::findOrFail($id);
+
+            Manufacturing::unplanManufacturingOrder($order);
+
+            Notification::make()
+                ->title(__('Order Unplanned'))
+                ->body(__("Manufacturing order :name has been unplanned and calendar slots released.", ['name' => $order->name]))
+                ->success()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title(__('Action Failed'))
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function planAllVisibleOrders(): void
+    {
+        $unplanned = collect($this->timelineData['rows'])
+            ->filter(fn ($row) => ! $row['is_planned'] && in_array($row['state'], ['draft', 'confirmed']))
+            ->pluck('order');
+
+        if ($unplanned->isEmpty()) {
+            Notification::make()
+                ->title(__('No Unplanned Orders'))
+                ->body(__('All visible confirmed orders in this period are already planned.'))
+                ->info()
+                ->send();
+
+            return;
+        }
+
+        $successCount = 0;
+        $errors = [];
+
+        foreach ($unplanned as $order) {
+            try {
+                Manufacturing::planManufacturingOrder($order);
+                $successCount++;
+            } catch (\Throwable $e) {
+                $errors[] = "{$order->name}: {$e->getMessage()}";
+            }
+        }
+
+        if ($successCount > 0) {
+            Notification::make()
+                ->title(__('Batch Planning Complete'))
+                ->body(__("Successfully planned :count order(s).", ['count' => $successCount]))
+                ->success()
+                ->send();
+        }
+
+        if (! empty($errors)) {
+            Notification::make()
+                ->title(__('Some Orders Could Not Be Planned'))
+                ->body(implode("\n", array_slice($errors, 0, 3)))
+                ->warning()
+                ->send();
+        }
     }
 
     #[Computed]
@@ -100,9 +227,29 @@ class PlanningByProduction extends Page
             'product.uom',
             'assignedUser',
             'workOrders.workCenter',
+            'workOrders.blockedByWorkOrders',
+            'workOrders.dependentWorkOrders',
             'rawMaterialMoves.product.uom',
             'finishedMoves.product.uom',
         ])->find($this->selectedOrderId);
+    }
+
+    #[Computed]
+    public function selectedWorkOrder(): ?WorkOrder
+    {
+        if (! $this->selectedWorkOrderId) {
+            return null;
+        }
+
+        return WorkOrder::with([
+            'workCenter',
+            'manufacturingOrder.product.uom',
+            'manufacturingOrder.assignedUser',
+            'operation',
+            'blockedByWorkOrders',
+            'dependentWorkOrders',
+            'productivityLogs.assignedUser',
+        ])->find($this->selectedWorkOrderId);
     }
 
     #[Computed]
@@ -111,7 +258,7 @@ class PlanningByProduction extends Page
         $current = Carbon::parse($this->currentDate ?: now()->toDateString());
 
         [$rangeStart, $rangeEnd, $columns] = match ($this->viewMode) {
-            'week' => $this->buildWeekColumns($current),
+            'week'  => $this->buildWeekColumns($current),
             'month' => $this->buildMonthColumns($current),
             default => $this->buildMonthColumns($current),
         };
@@ -120,16 +267,27 @@ class PlanningByProduction extends Page
         $rangeEndTs = $rangeEnd->timestamp;
         $totalSeconds = max(1, $rangeEndTs - $rangeStartTs);
 
+        $workCenters = WorkCenter::query()
+            ->where('company_id', current_company_id())
+            ->orderBy('sort')
+            ->get(['id', 'name', 'code']);
+
         $ordersQuery = Order::query()
             ->where('company_id', current_company_id())
             ->with([
                 'product.uom',
                 'workOrders.workCenter',
+                'workOrders.blockedByWorkOrders',
+                'workOrders.dependentWorkOrders',
                 'assignedUser',
             ]);
 
         if ($this->statusFilter !== 'all') {
             $ordersQuery->where('state', $this->statusFilter);
+        }
+
+        if ($this->workCenterFilter) {
+            $ordersQuery->whereHas('workOrders', fn ($q) => $q->where('work_center_id', $this->workCenterFilter));
         }
 
         if ($this->search) {
@@ -148,6 +306,8 @@ class PlanningByProduction extends Page
         $confirmedCount = 0;
         $doneCount = 0;
         $overdueCount = 0;
+        $plannedCount = 0;
+        $unplannedCount = 0;
         $totalQuantityProducing = 0.0;
 
         foreach ($allOrders as $order) {
@@ -178,6 +338,13 @@ class PlanningByProduction extends Page
                 $doneCount++;
             }
 
+            $isPlanned = (bool) $order->is_planned;
+            if ($isPlanned) {
+                $plannedCount++;
+            } elseif (in_array($stateVal, ['draft', 'confirmed'])) {
+                $unplannedCount++;
+            }
+
             $isOverdue = $order->deadline_at
                 && $order->deadline_at->lt(now())
                 && ! in_array($stateVal, [ManufacturingOrderState::DONE->value, ManufacturingOrderState::CANCEL->value]);
@@ -188,7 +355,7 @@ class PlanningByProduction extends Page
 
             $totalQuantityProducing += (float) $order->quantity;
 
-            // Clamped coordinates in timestamps
+            // Clamped coordinates in timestamps for MO bar
             $clampedStartTs = max($rangeStartTs, $startTs);
             $clampedEndTs = min($rangeEndTs, $endTs);
 
@@ -198,27 +365,89 @@ class PlanningByProduction extends Page
             $leftPercent = max(0, min(97.0, $leftPercent));
             $widthPercent = max(3.5, min(100 - $leftPercent, $widthPercent));
 
-            // Work order stats
+            // Work order operations mapping with dependency information
             $workOrdersCount = $order->workOrders->count();
-            $doneWoCount = $order->workOrders->filter(fn ($wo) => ($wo->state instanceof WorkOrderState ? $wo->state->value : $wo->state) === WorkOrderState::DONE->value)->count();
+            $doneWoCount = $order->workOrders->filter(
+                fn ($wo) => ($wo->state instanceof WorkOrderState ? $wo->state->value : $wo->state) === WorkOrderState::DONE->value
+            )->count();
+
             $progressPercent = $workOrdersCount > 0
                 ? round(($doneWoCount / $workOrdersCount) * 100)
                 : (float_compare($order->quantity_producing, 0) > 0 ? round(($order->quantity_producing / max($order->quantity, 1)) * 100) : 0);
 
+            // Detailed operation bars along the timeline
+            $operations = [];
+            foreach ($order->workOrders->sortBy('sort') as $wo) {
+                $woStart = $wo->started_at ?? $moStart;
+                $expectedMin = (float) ($wo->expected_duration ?: 60);
+                $woEnd = $wo->finished_at ?? (clone $woStart)->addMinutes($expectedMin);
+
+                $woStartTs = $woStart->timestamp;
+                $woEndTs = $woEnd->timestamp;
+                if ($woEndTs <= $woStartTs) {
+                    $woEndTs = $woStartTs + max(1800, (int) ($expectedMin * 60));
+                }
+
+                $woClampedStart = max($rangeStartTs, $woStartTs);
+                $woClampedEnd = min($rangeEndTs, $woEndTs);
+
+                $woLeftPct = (($woClampedStart - $rangeStartTs) / $totalSeconds) * 100;
+                $woWidthPct = (($woClampedEnd - $woClampedStart) / $totalSeconds) * 100;
+
+                $woStateVal = $wo->state instanceof WorkOrderState ? $wo->state->value : (string) $wo->state;
+
+                // Dependencies status
+                $blockingWos = $wo->blockedByWorkOrders->map(fn ($b) => [
+                    'id'      => $b->id,
+                    'name'    => $b->name,
+                    'state'   => $b->state instanceof WorkOrderState ? $b->state->value : (string) $b->state,
+                    'is_done' => in_array($b->state instanceof WorkOrderState ? $b->state->value : (string) $b->state, ['done', 'cancel']),
+                ])->all();
+
+                $isBlocked = collect($blockingWos)->contains(fn ($b) => ! $b['is_done']);
+
+                $operations[] = [
+                    'id'               => $wo->id,
+                    'name'             => $wo->name,
+                    'work_center_name' => $wo->workCenter?->name ?? 'Unassigned',
+                    'work_center_code' => $wo->workCenter?->code,
+                    'state'            => $woStateVal,
+                    'state_label'      => $wo->state instanceof WorkOrderState ? $wo->state->getLabel() : ucfirst($woStateVal),
+                    'duration_hours'   => round($expectedMin / 60, 1),
+                    'actual_duration'  => round((float) $wo->duration / 60, 1),
+                    'start_formatted'  => $woStart->format('d M H:i'),
+                    'end_formatted'    => $woEnd->format('d M H:i'),
+                    'left_percent'     => round(max(0, min(97.0, $woLeftPct)), 2),
+                    'width_percent'    => round(max(2.5, min(100 - $woLeftPct, $woWidthPct)), 2),
+                    'blocking_wos'     => $blockingWos,
+                    'is_blocked'       => $isBlocked,
+                    'bar_class'        => match ($woStateVal) {
+                        'progress' => 'gantt-bar-progress',
+                        'ready'    => 'gantt-bar-ready',
+                        'done'     => 'gantt-bar-done',
+                        'cancel'   => 'gantt-bar-overdue',
+                        default    => 'gantt-bar-waiting',
+                    },
+                ];
+            }
+
             $rows[] = [
-                'order'                => $order,
-                'state'                => $stateVal,
-                'state_label'          => $order->state instanceof ManufacturingOrderState ? $order->state->getLabel() : ucfirst($stateVal),
-                'color_theme'          => $this->getOrderColorTheme($stateVal, $isOverdue),
-                'is_overdue'           => $isOverdue,
-                'start_formatted'      => $moStart->format('d M Y, H:i'),
-                'deadline_formatted'   => $order->deadline_at ? $order->deadline_at->format('d M Y, H:i') : 'No deadline',
-                'left_percent'         => round($leftPercent, 2),
-                'width_percent'        => round($widthPercent, 2),
-                'progress_percent'     => $progressPercent,
-                'work_orders_count'    => $workOrdersCount,
-                'done_wo_count'        => $doneWoCount,
-                'bar_class'            => $isOverdue
+                'order'              => $order,
+                'state'              => $stateVal,
+                'state_label'        => $order->state instanceof ManufacturingOrderState ? $order->state->getLabel() : ucfirst($stateVal),
+                'color_theme'        => $this->getOrderColorTheme($stateVal, $isOverdue),
+                'is_overdue'         => $isOverdue,
+                'is_planned'         => $isPlanned,
+                'start_formatted'    => $moStart->format('d M Y, H:i'),
+                'deadline_formatted' => $order->deadline_at ? $order->deadline_at->format('d M Y, H:i') : 'No deadline',
+                'left_percent'       => round($leftPercent, 2),
+                'width_percent'      => round($widthPercent, 2),
+                'progress_percent'   => $progressPercent,
+                'work_orders_count'  => $workOrdersCount,
+                'done_wo_count'      => $doneWoCount,
+                'operations'         => $operations,
+                'is_expanded'        => in_array($order->id, $this->expandedOrderIds),
+                'bar_class'          => $isOverdue
                     ? 'gantt-bar-overdue'
                     : match ($stateVal) {
                         'progress'  => 'gantt-bar-progress',
@@ -242,13 +471,16 @@ class PlanningByProduction extends Page
             'range_end'           => $rangeEnd,
             'columns'             => $columns,
             'rows'                => $rows,
+            'work_centers'        => $workCenters,
             'stats'               => [
-                'total_orders'    => $totalOrdersCount,
-                'in_progress'     => $inProgressCount,
-                'confirmed'       => $confirmedCount,
-                'done'            => $doneCount,
-                'overdue'         => $overdueCount,
-                'total_qty'       => round($totalQuantityProducing, 2),
+                'total_orders'     => $totalOrdersCount,
+                'in_progress'      => $inProgressCount,
+                'confirmed'        => $confirmedCount,
+                'done'             => $doneCount,
+                'overdue'          => $overdueCount,
+                'planned'          => $plannedCount,
+                'unplanned'        => $unplannedCount,
+                'total_qty'        => round($totalQuantityProducing, 2),
             ],
         ];
     }

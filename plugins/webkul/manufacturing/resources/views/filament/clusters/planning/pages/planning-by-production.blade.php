@@ -4,12 +4,14 @@
         $stats = $data['stats'];
         $columns = $data['columns'];
         $rows = $data['rows'];
+        $workCenters = $data['work_centers'] ?? collect();
         $selectedOrder = $this->selectedOrder;
-        $minWidth = $viewMode === 'month' ? 'min-w-[1300px]' : 'min-w-[900px]';
+        $selectedWo = $this->selectedWorkOrder;
+        $minWidth = $viewMode === 'month' ? 'min-w-[1300px]' : 'min-w-[950px]';
     @endphp
 
     <style>
-        /* Modern Scoped Gantt Design Tokens */
+        /* Scoped Gantt Design Tokens */
         .gantt-card {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
@@ -55,6 +57,15 @@
         }
         :is(.dark, [data-theme="dark"]) .gantt-row:hover {
             background-color: rgba(255, 255, 255, 0.02) !important;
+        }
+
+        .gantt-subrow {
+            background-color: #fafbfc;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        :is(.dark, [data-theme="dark"]) .gantt-subrow {
+            background-color: rgba(255, 255, 255, 0.015) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
         }
 
         .gantt-grid-line {
@@ -177,10 +188,41 @@
                         <x-filament::icon icon="heroicon-o-calendar" class="w-4 h-4 text-primary-500" />
                         <span>{{ $data['period_title'] }}</span>
                     </div>
+
+                    {{-- Expand / Collapse Operations Toggle --}}
+                    <div class="hidden sm:inline-flex items-center rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04] p-0.5 ml-2">
+                        <button
+                            type="button"
+                            wire:click="expandAll"
+                            class="px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white transition"
+                            title="Expand all operations"
+                        >
+                            Expand All
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="collapseAll"
+                            class="px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white transition"
+                            title="Collapse all operations"
+                        >
+                            Collapse
+                        </button>
+                    </div>
                 </div>
 
-                {{-- Right: View Mode, Filter, Search --}}
+                {{-- Right: WorkCenter Filter, Status, Search, Batch Actions --}}
                 <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                    {{-- Work Center Filter --}}
+                    <select
+                        wire:model.live="workCenterFilter"
+                        class="gantt-select py-1 pl-3 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 cursor-pointer max-w-[150px]"
+                    >
+                        <option value="">All Work Centers</option>
+                        @foreach($workCenters as $wc)
+                            <option value="{{ $wc->id }}">{{ $wc->name }}</option>
+                        @endforeach
+                    </select>
+
                     {{-- Scale Switcher --}}
                     <div class="inline-flex p-0.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04]">
                         <button
@@ -217,24 +259,44 @@
                             type="text"
                             wire:model.live.debounce.300ms="search"
                             placeholder="Search MO or product..."
-                            class="py-1 pl-8 pr-3 text-xs rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 w-36 sm:w-48"
+                            class="py-1 pl-8 pr-3 text-xs rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 w-32 sm:w-44"
                         />
                         <x-filament::icon icon="heroicon-m-magnifying-glass" class="absolute w-3.5 h-3.5 text-gray-400 left-2.5 top-2 pointer-events-none" />
                     </div>
+
+                    {{-- Batch Plan Orders Action (Like Odoo server action) --}}
+                    @if(!empty($stats['unplanned']))
+                        <button
+                            type="button"
+                            wire:click="planAllVisibleOrders"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-xs transition"
+                            title="Auto-plan all confirmed orders into available workcenter calendar slots"
+                        >
+                            <x-filament::icon icon="heroicon-m-bolt" class="w-3.5 h-3.5" />
+                            <span>Plan ({{ $stats['unplanned'] }})</span>
+                        </button>
+                    @endif
                 </div>
             </div>
 
-            {{-- Seamless Metrics Sub-Bar (No ugly grey strip!) --}}
-            <div class="px-4 py-2.5 border-t border-gray-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
+            {{-- Seamless Metrics Sub-Bar --}}
+            <div class="px-4 py-2 border-t border-gray-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.05] dark:text-gray-300">
                         Total Orders: <strong class="ml-1 text-gray-950 dark:text-white">{{ $stats['total_orders'] }}</strong>
                     </span>
 
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                        Confirmed: <strong>{{ $stats['confirmed'] }}</strong>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                        Planned: <strong>{{ $stats['planned'] }}</strong>
                     </span>
+
+                    @if(!empty($stats['unplanned']))
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            Unplanned: <strong>{{ $stats['unplanned'] }}</strong>
+                        </span>
+                    @endif
 
                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
@@ -267,8 +329,8 @@
                     {{-- Header Row --}}
                     <div class="flex gantt-header">
                         {{-- Left Column Header --}}
-                        <div class="w-72 sm:w-80 shrink-0 px-4 py-2.5 text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400 gantt-sidebar-cell flex items-center justify-between">
-                            <span>Manufacturing Order</span>
+                        <div class="w-80 sm:w-96 shrink-0 px-4 py-2.5 text-xs font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400 gantt-sidebar-cell flex items-center justify-between">
+                            <span>Manufacturing Order / Operations</span>
                             <span class="text-[10px] text-gray-400 font-normal lowercase">({{ count($rows) }})</span>
                         </div>
 
@@ -307,16 +369,56 @@
                             $theme = $row['color_theme'];
                             $barClass = $row['bar_class'] ?? 'gantt-bar-confirmed';
                             $isShortBar = $row['width_percent'] < 14;
+                            $isExpanded = $row['is_expanded'];
+                            $operations = $row['operations'];
                         @endphp
+                        {{-- Parent MO Row --}}
                         <div class="flex gantt-row">
-                            {{-- MO Left Card (High readability) --}}
-                            <div class="w-72 sm:w-80 shrink-0 p-3 sm:px-4 gantt-sidebar-cell flex flex-col justify-center">
+                            {{-- MO Left Card --}}
+                            <div class="w-80 sm:w-96 shrink-0 p-3 sm:px-4 gantt-sidebar-cell flex flex-col justify-center">
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="font-bold font-mono text-xs text-gray-950 dark:text-white truncate">
-                                        {{ $order->name }}
-                                    </span>
+                                    <div class="flex items-center gap-1.5 truncate">
+                                        {{-- Expand / Collapse Chevron button --}}
+                                        @if(count($operations) > 0)
+                                            <button
+                                                type="button"
+                                                wire:click="toggleExpandOrder({{ $order->id }})"
+                                                class="p-0.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
+                                                title="{{ $isExpanded ? 'Collapse operations' : 'Expand operations' }}"
+                                            >
+                                                <svg class="w-3.5 h-3.5 transition-transform duration-150 {{ $isExpanded ? 'rotate-90 text-primary-500' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                            </button>
+                                        @else
+                                            <span class="w-3.5 inline-block"></span>
+                                        @endif
 
-                                    {{-- Filament-Style Pill Badge --}}
+                                        <span
+                                            wire:click="openOrderModal({{ $order->id }})"
+                                            class="font-bold font-mono text-xs text-gray-950 dark:text-white truncate cursor-pointer hover:text-primary-600 dark:hover:text-primary-400"
+                                        >
+                                            {{ $order->name }}
+                                        </span>
+
+                                        {{-- Planning Badge --}}
+                                        @if($row['is_planned'])
+                                            <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-indigo-500/10 text-indigo-500 border border-indigo-500/25">
+                                                Planned
+                                            </span>
+                                        @else
+                                            <button
+                                                type="button"
+                                                wire:click="planOrder({{ $order->id }})"
+                                                class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/25 hover:bg-amber-500/20"
+                                                title="Click to plan this order"
+                                            >
+                                                Unplanned
+                                            </button>
+                                        @endif
+                                    </div>
+
+                                    {{-- Status Pill Badge --}}
                                     @if($row['state'] === 'progress')
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/25">
                                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
@@ -339,12 +441,12 @@
                                     @endif
                                 </div>
 
-                                <div class="text-xs text-gray-600 dark:text-gray-300 truncate mt-1 flex items-center gap-1 font-medium">
+                                <div class="text-xs text-gray-600 dark:text-gray-300 truncate mt-1 flex items-center gap-1 font-medium pl-4">
                                     <span class="text-gray-400">📦</span>
                                     <span class="truncate">{{ $order->product?->name }}</span>
                                 </div>
 
-                                <div class="flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500 mt-1.5 pt-1 border-t border-gray-100 dark:border-white/5">
+                                <div class="flex items-center justify-between text-[11px] text-gray-400 dark:text-gray-500 mt-1.5 pt-1 border-t border-gray-100 dark:border-white/5 pl-4">
                                     <span>{{ (float) $order->quantity }} {{ $order->product?->uom?->name }}</span>
                                     <span>•</span>
                                     <span>{{ $row['done_wo_count'] }}/{{ $row['work_orders_count'] }} Ops</span>
@@ -358,7 +460,7 @@
                                 </div>
                             </div>
 
-                            {{-- Timeline Canvas Track --}}
+                            {{-- Timeline Canvas Track for MO Bar --}}
                             <div class="flex-1 relative h-16">
                                 {{-- Background Grid Lines --}}
                                 <div class="absolute inset-0 flex pointer-events-none">
@@ -388,6 +490,7 @@
                                             deadline: '{{ $row['deadline_formatted'] }}',
                                             progress: '{{ $row['progress_percent'] }}%',
                                             state: '{{ $row['state_label'] }}',
+                                            is_planned: {{ $row['is_planned'] ? 'true' : 'false' }},
                                             is_overdue: {{ $row['is_overdue'] ? 'true' : 'false' }},
                                             wo_count: '{{ $row['work_orders_count'] }} operations',
                                             badge: '{{ $theme['badge'] }}'
@@ -413,7 +516,7 @@
                                         </span>
                                     </div>
 
-                                    {{-- Exterior Label for Short Bars (Effortless Readability!) --}}
+                                    {{-- Exterior Label for Short Bars --}}
                                     @if($isShortBar)
                                         <div class="absolute left-full ml-2.5 top-0 bottom-0 flex items-center pointer-events-none whitespace-nowrap z-20">
                                             <span class="text-xs font-semibold text-gray-800 dark:text-gray-200 drop-shadow-xs flex items-center gap-1.5">
@@ -425,6 +528,97 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Expanded Sub-Rows: Operations under this MO (Odoo MRP II Style!) --}}
+                        @if($isExpanded)
+                            @foreach($operations as $op)
+                                @php
+                                    $isOpShort = $op['width_percent'] < 14;
+                                @endphp
+                                <div class="flex gantt-subrow">
+                                    {{-- Sub-Row Left Item --}}
+                                    <div class="w-80 sm:w-96 shrink-0 py-2 px-3 sm:px-4 pl-9 gantt-sidebar-cell flex flex-col justify-center">
+                                        <div class="flex items-center justify-between gap-1.5">
+                                            <div class="flex items-center gap-1.5 truncate">
+                                                <span class="text-gray-400 dark:text-gray-600 font-mono text-xs select-none">↳</span>
+                                                <span
+                                                    wire:click="openWorkOrderModal({{ $op['id'] }})"
+                                                    class="font-semibold text-xs text-gray-800 dark:text-gray-200 truncate cursor-pointer hover:text-primary-600 dark:hover:text-primary-400"
+                                                    title="{{ $op['name'] }}"
+                                                >
+                                                    {{ $op['name'] }}
+                                                </span>
+                                            </div>
+
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                @if($op['is_blocked'])
+                                                    <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-rose-500/10 text-rose-500 border border-rose-500/25" title="Waiting on preceding operation">
+                                                        <x-filament::icon icon="heroicon-m-lock-closed" class="w-2.5 h-2.5" />
+                                                        Blocked
+                                                    </span>
+                                                @endif
+
+                                                <span class="px-1.5 py-0.2 text-[9px] font-semibold rounded {{ match($op['state']) { 'progress' => 'bg-amber-500/10 text-amber-500', 'done' => 'bg-emerald-500/10 text-emerald-500', 'ready' => 'bg-blue-500/10 text-blue-500', default => 'bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-400' } }}">
+                                                    {{ $op['state_label'] }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400 mt-1 pl-3.5">
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">📍 {{ $op['work_center_name'] }}</span>
+                                            <span>•</span>
+                                            <span>⏱ {{ $op['duration_hours'] }}h expected</span>
+                                            @if($op['actual_duration'] > 0)
+                                                <span>•</span>
+                                                <span class="font-mono text-gray-600 dark:text-gray-300">{{ $op['actual_duration'] }}h actual</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    {{-- Sub-Row Timeline Track --}}
+                                    <div class="flex-1 relative h-11">
+                                        {{-- Background Grid Lines --}}
+                                        <div class="absolute inset-0 flex pointer-events-none">
+                                            @foreach($columns as $col)
+                                                @php
+                                                    $isWeekend = $col['is_weekend'] ?? false;
+                                                    $colBg = $col['is_today'] ? 'gantt-today-col' : ($isWeekend ? 'gantt-weekend-col' : '');
+                                                @endphp
+                                                <div class="flex-1 gantt-grid-line last:border-r-0 {{ $colBg }}"></div>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- Operation Bar --}}
+                                        <div
+                                            class="absolute top-1.5 bottom-1.5"
+                                            style="left: {{ $op['left_percent'] }}%; width: {{ max(3.0, $op['width_percent']) }}%;"
+                                        >
+                                            <div
+                                                wire:click="openWorkOrderModal({{ $op['id'] }})"
+                                                class="w-full h-full px-2 flex items-center justify-between gap-1 overflow-hidden gantt-bar {{ $op['bar_class'] }}"
+                                                title="{{ $op['name'] }} ({{ $op['start_formatted'] }} -> {{ $op['end_formatted'] }})"
+                                            >
+                                                <span class="font-bold text-[11px] text-white truncate drop-shadow-xs">
+                                                    {{ $op['name'] }}
+                                                </span>
+
+                                                <span class="shrink-0 text-[9px] font-mono bg-black/25 text-white rounded px-1 py-0.2 leading-none">
+                                                    {{ $op['duration_hours'] }}h
+                                                </span>
+                                            </div>
+
+                                            @if($isOpShort)
+                                                <div class="absolute left-full ml-2 top-0 bottom-0 flex items-center pointer-events-none whitespace-nowrap z-20">
+                                                    <span class="text-[11px] font-semibold text-gray-700 dark:text-gray-300 drop-shadow-xs">
+                                                        {{ $op['name'] }} ({{ $op['work_center_name'] }})
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                     @empty
                         <div class="p-12 text-center text-gray-500 dark:text-gray-400">
                             <x-filament::icon icon="heroicon-o-clipboard-document-list" class="w-10 h-10 mx-auto text-gray-400 mb-2 opacity-40" />
@@ -462,10 +656,13 @@
             <div class="flex items-center gap-2 pt-1 border-t border-white/10">
                 <span class="text-gray-400">Status:</span>
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="tooltip ? tooltip.badge : ''" x-text="tooltip ? tooltip.state : ''"></span>
+                <template x-if="tooltip && tooltip.is_planned">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-300">Planned</span>
+                </template>
             </div>
         </div>
 
-        {{-- Detail Modal --}}
+        {{-- Manufacturing Order Detail Modal --}}
         @if($selectedOrder)
             <div
                 class="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
@@ -517,10 +714,13 @@
 
                             <div class="p-3 rounded-lg border gantt-tile">
                                 <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-400">Status</div>
-                                <div class="mt-1">
+                                <div class="mt-1 flex items-center gap-1.5">
                                     <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded {{ $selectedOrder->state instanceof \Webkul\Manufacturing\Enums\ManufacturingOrderState ? $selectedOrder->state->getColor() : 'gray' }}">
                                         {{ $selectedOrder->state instanceof \Webkul\Manufacturing\Enums\ManufacturingOrderState ? $selectedOrder->state->getLabel() : ucfirst($selectedOrder->state) }}
                                     </span>
+                                    @if($selectedOrder->is_planned)
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-400">Planned</span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -554,9 +754,11 @@
 
                         {{-- Operations Table --}}
                         <div>
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">
-                                Work Orders & Operations ({{ $selectedOrder->workOrders->count() }})
-                            </h4>
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                                    Work Orders & Operations ({{ $selectedOrder->workOrders->count() }})
+                                </h4>
+                            </div>
 
                             @if($selectedOrder->workOrders->isNotEmpty())
                                 <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
@@ -565,6 +767,7 @@
                                             <tr>
                                                 <th class="px-3.5 py-2 text-left font-semibold uppercase tracking-wider">Operation</th>
                                                 <th class="px-3.5 py-2 text-left font-semibold uppercase tracking-wider">Work Center</th>
+                                                <th class="px-3.5 py-2 text-left font-semibold uppercase tracking-wider">Dependency</th>
                                                 <th class="px-3.5 py-2 text-right font-semibold uppercase tracking-wider">Expected</th>
                                                 <th class="px-3.5 py-2 text-right font-semibold uppercase tracking-wider">Actual</th>
                                                 <th class="px-3.5 py-2 text-center font-semibold uppercase tracking-wider">Status</th>
@@ -573,8 +776,30 @@
                                         <tbody class="divide-y divide-gray-100 dark:divide-white/5">
                                             @foreach($selectedOrder->workOrders as $wo)
                                                 <tr class="hover:bg-gray-50/50 dark:hover:bg-white/[0.02]">
-                                                    <td class="px-3.5 py-2.5 font-medium text-gray-950 dark:text-white">{{ $wo->name }}</td>
+                                                    <td class="px-3.5 py-2.5 font-medium text-gray-950 dark:text-white">
+                                                        <button
+                                                            type="button"
+                                                            wire:click="openWorkOrderModal({{ $wo->id }})"
+                                                            class="text-primary-600 hover:underline dark:text-primary-400 text-left font-semibold"
+                                                        >
+                                                            {{ $wo->name }}
+                                                        </button>
+                                                    </td>
                                                     <td class="px-3.5 py-2.5 text-gray-600 dark:text-gray-300">{{ $wo->workCenter?->name ?? '—' }}</td>
+                                                    <td class="px-3.5 py-2.5 text-gray-600 dark:text-gray-400">
+                                                        @if($wo->blockedByWorkOrders->isNotEmpty())
+                                                            <div class="flex flex-wrap gap-1">
+                                                                @foreach($wo->blockedByWorkOrders as $blocker)
+                                                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] {{ in_array($blocker->state?->value, ['done', 'cancel']) ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500 font-semibold' }}">
+                                                                        <x-filament::icon icon="heroicon-m-link" class="w-2.5 h-2.5" />
+                                                                        {{ $blocker->name }}
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        @else
+                                                            <span class="text-gray-400">—</span>
+                                                        @endif
+                                                    </td>
                                                     <td class="px-3.5 py-2.5 text-right text-gray-600 dark:text-gray-400 font-mono">{{ (float) $wo->expected_duration }}m</td>
                                                     <td class="px-3.5 py-2.5 text-right text-gray-600 dark:text-gray-400 font-mono">{{ (float) $wo->duration }}m</td>
                                                     <td class="px-3.5 py-2.5 text-center">
@@ -595,20 +820,135 @@
                         </div>
                     </div>
 
-                    {{-- Modal Footer --}}
-                    <div class="flex items-center justify-end gap-2 px-6 py-3 border-t border-gray-200 dark:border-white/10 bg-gray-50/80 dark:bg-white/[0.03]">
-                        <a
-                            href="{{ \Webkul\Manufacturing\Filament\Clusters\Operations\Resources\ManufacturingOrderResource::getUrl('view', ['record' => $selectedOrder->id]) }}"
-                            target="_blank"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition shadow-xs"
-                        >
-                            <x-filament::icon icon="heroicon-o-arrow-top-right-on-square" class="w-3.5 h-3.5" />
-                            Open MO
-                        </a>
+                    {{-- Modal Footer with Plan/Unplan Actions --}}
+                    <div class="flex items-center justify-between px-6 py-3 border-t border-gray-200 dark:border-white/10 bg-gray-50/80 dark:bg-white/[0.03]">
+                        <div class="flex items-center gap-2">
+                            @if(! $selectedOrder->is_planned && in_array($selectedOrder->state?->value ?? (string)$selectedOrder->state, ['draft', 'confirmed']))
+                                <button
+                                    type="button"
+                                    wire:click="planOrder({{ $selectedOrder->id }})"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition shadow-xs"
+                                >
+                                    <x-filament::icon icon="heroicon-m-bolt" class="w-3.5 h-3.5" />
+                                    Plan Order
+                                </button>
+                            @elseif($selectedOrder->is_planned && !in_array($selectedOrder->state?->value ?? (string)$selectedOrder->state, ['done', 'cancel']))
+                                <button
+                                    type="button"
+                                    wire:click="unplanOrder({{ $selectedOrder->id }})"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300 rounded-lg transition shadow-xs"
+                                >
+                                    <x-filament::icon icon="heroicon-m-arrow-path" class="w-3.5 h-3.5" />
+                                    Unplan Order
+                                </button>
+                            @endif
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <a
+                                href="{{ \Webkul\Manufacturing\Filament\Clusters\Operations\Resources\ManufacturingOrderResource::getUrl('view', ['record' => $selectedOrder->id]) }}"
+                                target="_blank"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition shadow-xs"
+                            >
+                                <x-filament::icon icon="heroicon-o-arrow-top-right-on-square" class="w-3.5 h-3.5" />
+                                Open MO
+                            </a>
+
+                            <button
+                                type="button"
+                                wire:click="closeOrderModal"
+                                class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/20 transition"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Work Order Detail Sub-Modal (When clicked from expanded operation rows) --}}
+        @if($selectedWo)
+            <div
+                class="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+                wire:click.self="closeWorkOrderModal"
+            >
+                <div class="relative w-full max-w-2xl rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden animate-in fade-in zoom-in-95 duration-200 bg-white dark:bg-gray-900">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/80 dark:bg-white/[0.03]">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-lg bg-primary-100 text-primary-600 dark:bg-primary-950 dark:text-primary-400">
+                                <x-filament::icon icon="heroicon-o-wrench-screwdriver" class="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-950 dark:text-white">
+                                    {{ $selectedWo->manufacturingOrder?->name }}: {{ $selectedWo->name }}
+                                </h3>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    Work Center: {{ $selectedWo->workCenter?->name }}
+                                </div>
+                            </div>
+                        </div>
 
                         <button
                             type="button"
-                            wire:click="closeOrderModal"
+                            wire:click="closeWorkOrderModal"
+                            class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition"
+                        >
+                            <x-filament::icon icon="heroicon-o-x-mark" class="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <div class="p-6 space-y-4 text-sm">
+                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            <div class="p-3 rounded-lg border gantt-tile">
+                                <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Product</div>
+                                <div class="font-bold mt-1 text-sm truncate text-gray-950 dark:text-white">
+                                    {{ $selectedWo->manufacturingOrder?->product?->name ?? '—' }}
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-lg border gantt-tile">
+                                <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Quantity</div>
+                                <div class="font-bold mt-1 text-sm text-gray-950 dark:text-white">
+                                    {{ (float) $selectedWo->manufacturingOrder?->quantity }} {{ $selectedWo->manufacturingOrder?->product?->uom?->name }}
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-lg border gantt-tile">
+                                <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Expected</div>
+                                <div class="font-bold mt-1 text-sm text-gray-950 dark:text-white font-mono">
+                                    {{ (float) $selectedWo->expected_duration }}m
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-lg border gantt-tile">
+                                <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Status</div>
+                                <div class="mt-1">
+                                    <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded {{ $selectedWo->state instanceof \Webkul\Manufacturing\Enums\WorkOrderState ? $selectedWo->state->getColor() : 'gray' }}">
+                                        {{ $selectedWo->state instanceof \Webkul\Manufacturing\Enums\WorkOrderState ? $selectedWo->state->getLabel() : ucfirst($selectedWo->state) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-lg border gantt-tile space-y-2">
+                            <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Dependencies</div>
+                            @if($selectedWo->blockedByWorkOrders->isNotEmpty())
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($selectedWo->blockedByWorkOrders as $blocker)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs {{ in_array($blocker->state?->value, ['done', 'cancel']) ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500 font-bold' }}">
+                                            <x-filament::icon icon="heroicon-m-lock-closed" class="w-3 h-3" />
+                                            Blocked by: {{ $blocker->name }} ({{ $blocker->state instanceof \Webkul\Manufacturing\Enums\WorkOrderState ? $blocker->state->getLabel() : $blocker->state }})
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓ No blocking dependencies (Can start freely)</div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 px-6 py-3 border-t border-gray-200 dark:border-white/10 bg-gray-50/80 dark:bg-white/[0.03]">
+                        <button
+                            type="button"
+                            wire:click="closeWorkOrderModal"
                             class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/20 transition"
                         >
                             Close
