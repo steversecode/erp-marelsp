@@ -68,6 +68,21 @@ class ShopFloor extends Page
         return 'Shop Floor';
     }
 
+    public function getHeading(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return '';
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
+    public function getSubNavigation(): array
+    {
+        return [];
+    }
+
     public function getMaxContentWidth(): Width|string|null
     {
         return Width::Full;

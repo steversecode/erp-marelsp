@@ -7,83 +7,141 @@
         $selectedWo = $this->selectedWorkOrder;
         $activeOp = $this->activeOperator;
         $availableOps = $this->availableOperators;
+        $cardCount = count($cards);
     @endphp
 
     <style>
-        /* Scoped Odoo MRP II Shop Floor Card Grid Design */
+        /* Hide Filament default page header and sub-navigation on Shop Floor */
+        .fi-header,
+        .fi-page-header,
+        header.fi-header,
+        .fi-sub-nav,
+        .fi-page-sub-navigation,
+        .fi-page-sub-navigation-tabs,
+        nav.fi-tabs,
+        .fi-page-header-actions {
+            display: none !important;
+        }
+
+        /* Full width and reset spacing */
+        .fi-page {
+            padding-top: 0 !important;
+        }
+        .fi-main-content {
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+        .fi-page-content {
+            padding: 0 !important;
+        }
+
+        /* Scoped Shop Floor Layout */
         .sf-root {
             font-family: inherit;
+            margin: -24px -16px;
         }
-
-        /* 6 Cards per Row Grid (Exact Odoo Style) */
-        .sf-grid-6 {
-            display: grid;
-            grid-template-columns: repeat(6, minmax(0, 1fr));
-            gap: 10px;
-        }
-        @media (max-width: 1180px) {
-            .sf-grid-6 {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
-        @media (max-width: 720px) {
-            .sf-grid-6 {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-        @media (max-width: 480px) {
-            .sf-grid-6 {
-                grid-template-columns: repeat(1, minmax(0, 1fr));
+        @media (min-width: 1024px) {
+            .sf-root {
+                margin: -32px -24px;
             }
         }
 
-        /* Top Bar Container */
+        /* Top Bar Container (Exact Odoo Style) */
         .sf-topbar {
             background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 8px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 7px 16px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         }
         :is(.dark, [data-theme="dark"]) .sf-topbar {
             background-color: #0f172a !important;
-            border-color: #1e293b !important;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+            border-bottom-color: #1e293b !important;
         }
 
         .sf-topbar-select {
             appearance: none;
             -webkit-appearance: none;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 7px;
-            padding: 4px 24px 4px 9px;
-            font-size: 12px;
-            font-weight: 500;
+            background-color: transparent;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 3px 22px 3px 8px;
+            font-size: 11px;
+            font-weight: 600;
             color: #1e293b;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 6px center;
+            background-position: right 5px center;
             background-repeat: no-repeat;
-            background-size: 13px 13px;
+            background-size: 12px 12px;
             cursor: pointer;
+            height: 28px;
         }
         :is(.dark, [data-theme="dark"]) .sf-topbar-select {
-            background-color: #1e293b;
             border-color: #334155;
             color: #f1f5f9;
+        }
+
+        /* 6 Cards per Row Grid Structure */
+        .sf-cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 16px 24px 16px;
+        }
+        .sf-card-wrapper {
+            flex: 0 0 calc((100% - (5 * 10px)) / 6);
+            width: calc((100% - (5 * 10px)) / 6);
+            min-width: 200px;
+            max-width: calc((100% - (5 * 10px)) / 6);
+            display: flex;
+            flex-direction: column;
+        }
+        /* When few cards exist, give them proper natural width */
+        .sf-cards-container.has-few-cards .sf-card-wrapper {
+            flex: 0 0 260px;
+            width: 260px;
+            max-width: 280px;
+        }
+
+        @media (max-width: 1440px) {
+            .sf-cards-container:not(.has-few-cards) .sf-card-wrapper {
+                flex: 0 0 calc((100% - (4 * 10px)) / 5);
+                width: calc((100% - (4 * 10px)) / 5);
+                max-width: calc((100% - (4 * 10px)) / 5);
+            }
+        }
+        @media (max-width: 1200px) {
+            .sf-cards-container:not(.has-few-cards) .sf-card-wrapper {
+                flex: 0 0 calc((100% - (3 * 10px)) / 4);
+                width: calc((100% - (3 * 10px)) / 4);
+                max-width: calc((100% - (3 * 10px)) / 4);
+            }
+        }
+        @media (max-width: 900px) {
+            .sf-cards-container:not(.has-few-cards) .sf-card-wrapper {
+                flex: 0 0 calc((100% - (2 * 10px)) / 3);
+                width: calc((100% - (2 * 10px)) / 3);
+                max-width: calc((100% - (2 * 10px)) / 3);
+            }
+        }
+        @media (max-width: 640px) {
+            .sf-card-wrapper,
+            .sf-cards-container.has-few-cards .sf-card-wrapper {
+                flex: 0 0 100% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
         }
 
         /* Odoo Shop Floor Card */
         .sf-odoo-card {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 11px 12px;
+            border-radius: 6px;
+            padding: 10px 11px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -97,124 +155,43 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
         }
         .sf-odoo-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
             transform: translateY(-1px);
         }
         :is(.dark, [data-theme="dark"]) .sf-odoo-card:hover {
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
-        /* Left Accent Borders (Odoo MRP style) */
+        /* Left Accent Borders (Exact Odoo MRP style) */
         .sf-border-progress { border-left: 4px solid #10b981 !important; }
         .sf-border-ready    { border-left: 4px solid #3b82f6 !important; }
         .sf-border-blocked  { border-left: 4px solid #ef4444 !important; }
         .sf-border-done     { border-left: 4px solid #059669 !important; }
-        .sf-border-waiting  { border-left: 4px solid #94a3b8 !important; }
+        .sf-border-waiting  { border-left: 4px solid #cbd5e1 !important; }
 
         /* Odoo Status Pill */
         .sf-status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            padding: 1.5px 7px;
+            gap: 2px;
+            padding: 1px 6px;
             border-radius: 9999px;
             font-size: 10px;
             font-weight: 600;
             line-height: 1.3;
-            border: 1px solid transparent;
             white-space: nowrap;
         }
-        .sf-pill-progress { background-color: #dcfce7; color: #15803d; }
-        .sf-pill-ready    { background-color: #dbeafe; color: #1d4ed8; }
-        .sf-pill-blocked  { background-color: #fee2e2; color: #b91c1c; }
-        .sf-pill-done     { background-color: #dcfce7; color: #15803d; }
+        .sf-pill-progress { background-color: #d1fae5; color: #065f46; }
+        .sf-pill-ready    { background-color: #dbeafe; color: #1e40af; }
+        .sf-pill-blocked  { background-color: #fee2e2; color: #991b1b; }
+        .sf-pill-done     { background-color: #d1fae5; color: #065f46; }
         .sf-pill-waiting  { background-color: #f1f5f9; color: #64748b; }
 
-        :is(.dark, [data-theme="dark"]) .sf-pill-progress { background-color: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
-        :is(.dark, [data-theme="dark"]) .sf-pill-ready    { background-color: rgba(59, 130, 246, 0.15); color: #93c5fd; }
-        :is(.dark, [data-theme="dark"]) .sf-pill-blocked  { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; }
-        :is(.dark, [data-theme="dark"]) .sf-pill-done     { background-color: rgba(5, 150, 105, 0.15); color: #6ee7b7; }
+        :is(.dark, [data-theme="dark"]) .sf-pill-progress { background-color: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+        :is(.dark, [data-theme="dark"]) .sf-pill-ready    { background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+        :is(.dark, [data-theme="dark"]) .sf-pill-blocked  { background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        :is(.dark, [data-theme="dark"]) .sf-pill-done     { background-color: rgba(5, 150, 105, 0.2); color: #6ee7b7; }
         :is(.dark, [data-theme="dark"]) .sf-pill-waiting  { background-color: rgba(255, 255, 255, 0.08); color: #cbd5e1; }
-
-        /* Stepper & Record Input */
-        .sf-qty-input {
-            width: 48px;
-            padding: 3px 4px;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid #cbd5e1;
-            background-color: #ffffff;
-            color: #0f172a;
-        }
-        :is(.dark, [data-theme="dark"]) .sf-qty-input {
-            background-color: #1e293b;
-            border-color: #334155;
-            color: #f8fafc;
-        }
-
-        .sf-btn-record {
-            padding: 3.5px 7px;
-            font-size: 10px;
-            font-weight: 600;
-            border-radius: 5px;
-            background-color: #f1f5f9;
-            color: #334155;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.1s ease;
-        }
-        .sf-btn-record:hover {
-            background-color: #e2e8f0;
-            color: #0f172a;
-        }
-        :is(.dark, [data-theme="dark"]) .sf-btn-record {
-            background-color: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #cbd5e1;
-        }
-        :is(.dark, [data-theme="dark"]) .sf-btn-record:hover {
-            background-color: rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-        }
-
-        /* Bottom Action Buttons (Odoo style) */
-        .sf-btn-action-left {
-            flex: 1;
-            padding: 6px 4px;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.12s ease;
-            white-space: nowrap;
-        }
-        .sf-btn-action-right {
-            flex: 1;
-            padding: 6px 4px;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.12s ease;
-            background-color: #0f172a;
-            color: #ffffff;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
-        }
-        .sf-btn-action-right:hover {
-            background-color: #1e293b;
-        }
-        :is(.dark, [data-theme="dark"]) .sf-btn-action-right {
-            background-color: #f8fafc;
-            color: #0f172a;
-        }
-        :is(.dark, [data-theme="dark"]) .sf-btn-action-right:hover {
-            background-color: #e2e8f0;
-        }
 
         /* Modal Backdrop */
         .sf-modal-backdrop {
@@ -231,10 +208,10 @@
         .sf-modal-dialog {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 14px;
+            border-radius: 12px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
             width: 100%;
-            max-width: 650px;
+            max-width: 600px;
             overflow: hidden;
             animation: sfModalZoom 0.15s ease-out;
         }
@@ -248,27 +225,30 @@
         }
     </style>
 
-    <div class="space-y-3.5 sf-root" x-data="{ isFullscreen: false }">
-        {{-- Top Bar (Matching Image 2: Search, Station, Show, My Work, Refresh, Shown Count, Operator) --}}
+    <div class="sf-root" x-data="{ isFullscreen: false }">
+        {{-- Top Bar (Matching Image 2: Search, Station, Show, My Work, Refresh, Count, Operator) --}}
         <div class="sf-topbar">
-            {{-- Left Side: Search & Filters --}}
-            <div class="flex flex-wrap items-center gap-2">
+            {{-- Left Side: Search & Filter Controls --}}
+            <div class="flex flex-wrap items-center gap-2.5">
                 {{-- Search or scan work order input --}}
                 <div class="relative">
                     <form wire:submit.prevent="handleBarcodeInput" class="relative">
                         <input
                             type="text"
-                            wire:model="barcodeInput"
+                            wire:model.live.debounce.350ms="search"
+                            wire:keydown.enter="handleBarcodeInput"
                             placeholder="Search or scan work order, order, product"
-                            class="py-1.5 pl-8 pr-3 text-xs rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-1 focus:ring-primary-500 w-56 sm:w-72"
+                            class="py-1.5 pl-8 pr-3 text-xs rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:bg-white focus:ring-1 focus:ring-primary-500 w-60 sm:w-72 transition"
                         />
                         <x-filament::icon icon="heroicon-m-magnifying-glass" class="absolute w-3.5 h-3.5 text-gray-400 left-2.5 top-2.5 pointer-events-none" />
                     </form>
                 </div>
 
-                {{-- Station Dropdown Filter --}}
+                <div class="h-5 w-px bg-gray-200 dark:bg-white/10"></div>
+
+                {{-- Station Dropdown --}}
                 <div class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">Station:</span>
+                    <span class="font-medium text-gray-500">Station</span>
                     <select
                         wire:model.live="selectedWorkCenterId"
                         class="sf-topbar-select"
@@ -280,27 +260,31 @@
                     </select>
                 </div>
 
-                {{-- Show Status Dropdown Filter --}}
+                <div class="h-5 w-px bg-gray-200 dark:bg-white/10"></div>
+
+                {{-- Show Status Dropdown --}}
                 <div class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">Show:</span>
+                    <span class="font-medium text-gray-500">Show</span>
                     <select
                         wire:model.live="statusFilter"
                         class="sf-topbar-select"
                     >
                         <option value="ready_and_running">Ready & running</option>
-                        <option value="ready">Ready only</option>
-                        <option value="progress">In Progress only</option>
-                        <option value="waiting">Waiting / Blocked</option>
-                        <option value="done">Done only</option>
                         <option value="all">All</option>
+                        <option value="progress">In Progress</option>
+                        <option value="ready">Ready</option>
+                        <option value="waiting">Waiting / Blocked</option>
+                        <option value="done">Done</option>
                     </select>
                 </div>
 
-                {{-- My Work Toggle Button --}}
+                <div class="h-5 w-px bg-gray-200 dark:bg-white/10"></div>
+
+                {{-- My Work Toggle --}}
                 <button
                     type="button"
                     wire:click="toggleMyWork"
-                    class="px-2.5 py-1 text-xs font-semibold rounded-lg border transition {{ $onlyMyWork ? 'bg-primary-600 text-white border-primary-600' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-white/[0.04] dark:text-gray-300 dark:border-white/10' }}"
+                    class="px-2.5 py-1 text-xs font-semibold rounded border transition {{ $onlyMyWork ? 'bg-primary-600 text-white border-primary-600' : 'bg-transparent text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5' }}"
                 >
                     My work
                 </button>
@@ -309,31 +293,36 @@
                 <button
                     type="button"
                     wire:click="$refresh"
-                    class="p-1.5 text-gray-500 hover:text-gray-900 rounded-lg border border-gray-200 hover:bg-gray-100 dark:border-white/10 dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/10 transition"
+                    class="px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 rounded transition flex items-center gap-1"
                     title="Refresh"
                 >
-                    <x-filament::icon icon="heroicon-m-arrow-path" class="w-3.5 h-3.5" />
+                    <x-filament::icon icon="heroicon-m-arrow-path" class="w-3.5 h-3.5 text-gray-500" />
+                    <span>Refresh</span>
                 </button>
             </div>
 
-            {{-- Right Side: Shown Count & Operator Sign in --}}
-            <div class="flex items-center gap-3 text-xs">
-                {{-- Shown Count Text (e.g. 6 of 6 shown) --}}
-                <span class="text-gray-400 font-medium">
+            {{-- Right Side: Shown Count & Operator Sign in & Fullscreen --}}
+            <div class="flex items-center gap-2.5 text-xs">
+                {{-- Shown Count --}}
+                <span class="text-gray-500 font-medium">
                     {{ count($cards) }} of {{ $stats['total'] }} shown
                 </span>
 
+                <div class="h-5 w-px bg-gray-200 dark:bg-white/10"></div>
+
                 {{-- Operator / Sign In --}}
-                <div class="flex items-center gap-1.5 border-l border-gray-200 dark:border-white/10 pl-3">
-                    <span class="text-gray-500">{{ $activeOp ? $activeOp->name : 'Not signed in' }}</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-600 dark:text-gray-300 font-medium">{{ $activeOp ? $activeOp->name : 'Not signed in' }}</span>
                     <button
                         type="button"
                         wire:click="toggleOperatorModal"
-                        class="px-2.5 py-1 font-semibold text-xs rounded-md bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-gray-900 transition"
+                        class="px-3 py-1 font-semibold text-xs rounded bg-[#1e293b] text-white hover:bg-black dark:bg-white dark:text-gray-900 transition shadow-sm"
                     >
                         {{ $activeOp ? 'Switch' : 'Sign in' }}
                     </button>
                 </div>
+
+                <div class="h-5 w-px bg-gray-200 dark:bg-white/10"></div>
 
                 {{-- Fullscreen Toggle --}}
                 <button
@@ -347,7 +336,7 @@
                             isFullscreen = false;
                         }
                     "
-                    class="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-md transition"
+                    class="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded transition"
                     title="Toggle Fullscreen"
                 >
                     <x-filament::icon icon="heroicon-o-arrows-pointing-out" class="w-4 h-4" />
@@ -355,8 +344,8 @@
             </div>
         </div>
 
-        {{-- 6 Cards per Row Grid (Exact Replica of Image 2) --}}
-        <div class="sf-grid-6">
+        {{-- 6 Cards per Row Container (Exact Replica of Image 2) --}}
+        <div class="sf-cards-container {{ $cardCount < 6 ? 'has-few-cards' : '' }}">
             @forelse($cards as $card)
                 @php
                     $isProgress = $card['is_progress'];
@@ -373,19 +362,25 @@
                         : ($isReady ? 'sf-pill-ready' : ($isDone ? 'sf-pill-done' : ($isBlocked ? 'sf-pill-blocked' : 'sf-pill-waiting')));
                 @endphp
 
-                <div class="flex flex-col">
+                <div class="sf-card-wrapper">
                     {{-- Title line above the card (e.g. WH/MO/01388-002  2) --}}
-                    <div class="flex items-center justify-between text-xs font-bold text-gray-800 dark:text-gray-200 px-1 pb-1">
-                        <span class="truncate">{{ $card['mo_name'] }}</span>
+                    <div class="flex items-center justify-between text-xs font-bold text-gray-800 dark:text-gray-200 pb-1 px-1">
+                        <span class="truncate tracking-tight">{{ $card['mo_name'] }}</span>
                         <span class="text-gray-400 font-mono text-[11px]">{{ $loop->iteration }}</span>
                     </div>
 
-                    {{-- Main Card Container --}}
+                    {{-- Main Card Box --}}
                     <div class="sf-odoo-card flex-1 {{ $accentBorder }}">
                         <div>
-                            {{-- Header inside card (Star, Operation Name, Status Badge) --}}
-                            <div class="flex items-center justify-between gap-1 pb-2">
+                            {{-- Header inside card: Checkbox + Star + Operation Name + Status Pill + More --}}
+                            <div class="flex items-center justify-between gap-1 pb-1.5">
                                 <div class="flex items-center gap-1.5 truncate">
+                                    {{-- Light checkbox like Image 2 --}}
+                                    <input
+                                        type="checkbox"
+                                        class="w-3.5 h-3.5 rounded border-gray-300 text-primary-600 focus:ring-0 cursor-pointer pointer-events-auto"
+                                    />
+                                    {{-- Star icon --}}
                                     <button
                                         type="button"
                                         class="text-gray-300 hover:text-amber-400 transition"
@@ -395,56 +390,68 @@
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                         </svg>
                                     </button>
+                                    {{-- Operation Name --}}
                                     <span class="font-bold text-xs text-gray-900 dark:text-white truncate">
                                         {{ $card['name'] }}
                                     </span>
                                 </div>
 
-                                <span class="sf-status-pill {{ $statusPillClass }}">
-                                    {{ $card['state_label'] }}
-                                </span>
+                                <div class="flex items-center gap-1 flex-shrink-0">
+                                    <span class="sf-status-pill {{ $statusPillClass }}">
+                                        {{ $card['state_label'] }}
+                                    </span>
+                                    {{-- Inspect Modal Icon --}}
+                                    <button
+                                        type="button"
+                                        wire:click="openDetailModal({{ $card['id'] }})"
+                                        class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition p-0.5"
+                                        title="Inspect details"
+                                    >
+                                        <x-filament::icon icon="heroicon-m-ellipsis-vertical" class="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
                             </div>
 
                             {{-- Metadata Table (Order, Product, Station, Source) --}}
-                            <div class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-white/5 pb-2 space-y-0.5">
-                                <div class="grid grid-cols-3 gap-1">
-                                    <span class="text-gray-400">Order</span>
-                                    <span class="col-span-2 font-medium text-gray-800 dark:text-gray-200 truncate">{{ $card['mo_name'] }}</span>
+                            <div class="text-[11px] leading-tight text-gray-600 dark:text-gray-400 space-y-1 my-1.5 border-b border-gray-100 dark:border-white/5 pb-2">
+                                <div class="flex items-center">
+                                    <span class="w-12 text-gray-400 flex-shrink-0">Order</span>
+                                    <span class="font-medium text-gray-800 dark:text-gray-200 truncate">{{ $card['mo_name'] }}</span>
                                 </div>
-                                <div class="grid grid-cols-3 gap-1">
-                                    <span class="text-gray-400">Product</span>
-                                    <span class="col-span-2 font-medium text-gray-800 dark:text-gray-200 truncate" title="{{ $card['product_name'] }}">{{ $card['product_name'] }}</span>
+                                <div class="flex items-center">
+                                    <span class="w-12 text-gray-400 flex-shrink-0">Product</span>
+                                    <span class="font-medium text-gray-800 dark:text-gray-200 truncate" title="{{ $card['product_name'] }}">{{ $card['product_name'] }}</span>
                                 </div>
-                                <div class="grid grid-cols-3 gap-1">
-                                    <span class="text-gray-400">Station</span>
-                                    <span class="col-span-2 font-medium text-gray-800 dark:text-gray-200 truncate">{{ $card['work_center_name'] }}</span>
+                                <div class="flex items-center">
+                                    <span class="w-12 text-gray-400 flex-shrink-0">Station</span>
+                                    <span class="font-medium text-gray-800 dark:text-gray-200 truncate">{{ $card['work_center_name'] }}</span>
                                 </div>
-                                <div class="grid grid-cols-3 gap-1">
-                                    <span class="text-gray-400">Source</span>
-                                    <span class="col-span-2 font-medium text-gray-800 dark:text-gray-200 truncate">{{ $card['source'] }}</span>
+                                <div class="flex items-center">
+                                    <span class="w-12 text-gray-400 flex-shrink-0">Source</span>
+                                    <span class="font-medium text-gray-800 dark:text-gray-200 truncate">{{ $card['source'] }}</span>
                                 </div>
                             </div>
 
                             {{-- Big Quantity Section --}}
-                            <div class="pt-2">
-                                <div class="flex items-baseline gap-1">
-                                    <span class="text-2xl font-black text-gray-950 dark:text-white tracking-tight">
+                            <div class="pt-0.5">
+                                <div class="flex items-baseline">
+                                    <span class="text-2xl font-black text-gray-950 dark:text-white tracking-tight leading-none">
                                         {{ (int)$card['quantity_produced'] }}
                                     </span>
-                                    <span class="text-xs text-gray-400 font-normal">
+                                    <span class="text-xs text-gray-500 font-normal ml-1">
                                         / {{ (int)$card['quantity_target'] }} {{ $card['uom'] }}
                                     </span>
                                 </div>
 
-                                {{-- Solid green progress bar --}}
-                                <div class="w-full h-1.5 bg-gray-100 dark:bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                                {{-- Solid green progress bar line --}}
+                                <div class="w-full h-1 bg-gray-100 dark:bg-white/10 rounded-full mt-1.5 overflow-hidden">
                                     <div
                                         class="h-full bg-emerald-500 rounded-full transition-all duration-300"
                                         style="width: {{ $card['progress_percent'] }}%"
                                     ></div>
                                 </div>
 
-                                {{-- Time / Duration line (0 of 9000 min) --}}
+                                {{-- Duration Line (e.g. 0 of 9000 min) --}}
                                 <div class="text-[10px] text-gray-400 font-mono mt-1">
                                     {{ $card['actual_duration'] }} of {{ (int)$card['expected_duration'] }} min
                                 </div>
@@ -452,23 +459,23 @@
 
                             {{-- Quantity Stepper / Record Row --}}
                             @if(! $isDone)
-                                <div class="pt-2 flex items-center gap-1.5">
+                                <div class="mt-2.5 flex items-center gap-1.5">
                                     <input
                                         type="number"
                                         wire:model="recordQtys.{{ $card['id'] }}"
-                                        class="sf-qty-input"
+                                        class="w-14 h-7 text-center font-bold text-xs rounded border border-gray-300 dark:border-white/10 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-1 focus:ring-1 focus:ring-primary-500"
                                     />
                                     <button
                                         type="button"
                                         wire:click="saveRecordedQty({{ $card['id'] }})"
-                                        class="sf-btn-record flex-1"
+                                        class="flex-1 h-7 px-2 text-xs font-semibold rounded border border-gray-300 dark:border-white/10 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 shadow-sm transition"
                                     >
                                         Record
                                     </button>
                                     <button
                                         type="button"
                                         wire:click="quickFillQty({{ $card['id'] }})"
-                                        class="sf-btn-record"
+                                        class="h-7 px-2 text-xs font-semibold rounded border border-gray-300 dark:border-white/10 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 shadow-sm transition"
                                     >
                                         All {{ (int)$card['quantity_target'] }}
                                     </button>
@@ -476,13 +483,13 @@
                             @endif
                         </div>
 
-                        {{-- Action Buttons at bottom of card --}}
-                        <div class="pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex items-center gap-1.5">
+                        {{-- Action Buttons at bottom of card (Exact Replica of Image 2) --}}
+                        <div class="mt-3 pt-2.5 border-t border-gray-100 dark:border-white/5 flex items-center gap-1.5">
                             @if($isProgress)
                                 <button
                                     type="button"
                                     wire:click="pauseWorkOrder({{ $card['id'] }})"
-                                    class="sf-btn-action-left bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300"
+                                    class="flex-1 h-8 rounded text-xs font-bold bg-[#a7d7c5] hover:bg-[#92ccb7] text-[#064e3b] dark:bg-emerald-950/60 dark:text-emerald-300 shadow-sm transition text-center"
                                     title="Click to Pause"
                                 >
                                     In progress
@@ -490,7 +497,7 @@
                                 <button
                                     type="button"
                                     wire:click="finishWorkOrder({{ $card['id'] }})"
-                                    class="sf-btn-action-right"
+                                    class="flex-1 h-8 rounded text-xs font-bold bg-[#1e293b] hover:bg-black text-white dark:bg-white dark:text-gray-900 shadow-sm transition text-center"
                                 >
                                     Finish step
                                 </button>
@@ -498,14 +505,14 @@
                                 <button
                                     type="button"
                                     wire:click="startWorkOrder({{ $card['id'] }})"
-                                    class="sf-btn-action-left bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300"
+                                    class="flex-1 h-8 rounded text-xs font-bold bg-blue-100 hover:bg-blue-200 text-blue-900 dark:bg-blue-950/60 dark:text-blue-300 shadow-sm transition text-center"
                                 >
                                     Ready
                                 </button>
                                 <button
                                     type="button"
                                     wire:click="startWorkOrder({{ $card['id'] }})"
-                                    class="sf-btn-action-right"
+                                    class="flex-1 h-8 rounded text-xs font-bold bg-[#1e293b] hover:bg-black text-white dark:bg-white dark:text-gray-900 shadow-sm transition text-center"
                                 >
                                     Start step
                                 </button>
@@ -513,48 +520,38 @@
                                 <button
                                     type="button"
                                     disabled
-                                    class="sf-btn-action-left bg-rose-50 text-rose-600 dark:bg-rose-950/40 opacity-70 cursor-not-allowed"
+                                    class="flex-1 h-8 rounded text-xs font-bold bg-rose-100 text-rose-800 opacity-60 cursor-not-allowed text-center"
                                 >
                                     Blocked
                                 </button>
                                 <button
                                     type="button"
                                     disabled
-                                    class="sf-btn-action-right opacity-40 cursor-not-allowed bg-gray-400"
+                                    class="flex-1 h-8 rounded text-xs font-bold bg-gray-200 text-gray-500 opacity-60 cursor-not-allowed text-center"
                                 >
                                     Locked
                                 </button>
                             @elseif($isDone)
-                                <div class="w-full py-1.5 text-center font-bold text-xs rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40">
+                                <div class="w-full h-8 flex items-center justify-center font-bold text-xs rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40">
                                     Finished ✓
                                 </div>
                             @else
                                 <button
                                     type="button"
                                     wire:click="startWorkOrder({{ $card['id'] }})"
-                                    class="sf-btn-action-right w-full"
+                                    class="w-full h-8 rounded text-xs font-bold bg-[#1e293b] hover:bg-black text-white dark:bg-white dark:text-gray-900 shadow-sm transition text-center"
                                 >
-                                    Start
+                                    Start step
                                 </button>
                             @endif
-
-                            {{-- Optional Details Modal Icon --}}
-                            <button
-                                type="button"
-                                wire:click="openDetailModal({{ $card['id'] }})"
-                                class="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded transition"
-                                title="Inspect details"
-                            >
-                                <x-filament::icon icon="heroicon-m-ellipsis-vertical" class="w-4 h-4" />
-                            </button>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="col-span-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-xl p-12 text-center text-gray-500">
+                <div class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-xl p-12 text-center text-gray-500 my-4">
                     <x-filament::icon icon="heroicon-o-wrench-screwdriver" class="w-10 h-10 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
                     <div class="font-bold text-sm text-gray-900 dark:text-white">No Work Orders Matching Filter</div>
-                    <div class="text-xs text-gray-400 mt-1">Try switching to "All" stations or changing the status filter.</div>
+                    <div class="text-xs text-gray-400 mt-1">Try switching to "All stations" or changing the "Show" status filter to "All".</div>
                 </div>
             @endforelse
         </div>
