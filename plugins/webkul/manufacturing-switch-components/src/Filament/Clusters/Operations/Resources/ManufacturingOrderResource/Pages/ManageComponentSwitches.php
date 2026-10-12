@@ -28,9 +28,19 @@ class ManageComponentSwitches extends ManageRelatedRecords
 
     public static function getNavigationBadge($parameters = []): ?string
     {
-        $count = Livewire::current()->getRecord()->componentSwitches()->count();
+        try {
+            $record = Livewire::current()?->getRecord();
 
-        return $count > 0 ? (string) $count : null;
+            if (! $record) {
+                return null;
+            }
+
+            $count = $record->componentSwitches()->count();
+
+            return $count > 0 ? (string) $count : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public function table(Table $table): Table

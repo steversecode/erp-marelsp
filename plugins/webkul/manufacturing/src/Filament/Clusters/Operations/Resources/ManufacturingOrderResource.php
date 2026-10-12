@@ -81,7 +81,7 @@ class ManufacturingOrderResource extends Resource
             EditManufacturingOrder::class,
             OverviewManufacturingOrder::class,
             ManageTransfers::class,
-            ...(class_exists(\Webkul\ManufacturingSwitchComponents\Filament\Clusters\Operations\Resources\ManufacturingOrderResource\Pages\ManageComponentSwitches::class)
+            ...(\Webkul\PluginManager\Package::isPluginInstalled('manufacturing-switch-components')
                 ? [\Webkul\ManufacturingSwitchComponents\Filament\Clusters\Operations\Resources\ManufacturingOrderResource\Pages\ManageComponentSwitches::class]
                 : []),
         ]);
@@ -96,7 +96,7 @@ class ManufacturingOrderResource extends Resource
             'edit'      => EditManufacturingOrder::route('/{record}/edit'),
             'overview'  => OverviewManufacturingOrder::route('/{record}/overview'),
             'transfers' => ManageTransfers::route('/{record}/transfers'),
-            ...(class_exists(\Webkul\ManufacturingSwitchComponents\Filament\Clusters\Operations\Resources\ManufacturingOrderResource\Pages\ManageComponentSwitches::class)
+            ...(\Webkul\PluginManager\Package::isPluginInstalled('manufacturing-switch-components')
                 ? ['component-switches' => \Webkul\ManufacturingSwitchComponents\Filament\Clusters\Operations\Resources\ManufacturingOrderResource\Pages\ManageComponentSwitches::route('/{record}/component-switches')]
                 : []),
         ];

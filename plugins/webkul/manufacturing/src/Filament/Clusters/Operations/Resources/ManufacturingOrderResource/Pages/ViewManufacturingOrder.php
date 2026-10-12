@@ -55,7 +55,7 @@ class ViewManufacturingOrder extends ViewRecord
             UnplanAction::make('unplan'),
             StartAction::make('start'),
             CancelAction::make('cancel'),
-            ...(class_exists(\Webkul\ManufacturingSwitchComponents\Filament\Actions\SwitchComponentAction::class)
+            ...(\Webkul\PluginManager\Package::isPluginInstalled('manufacturing-switch-components')
                 ? [\Webkul\ManufacturingSwitchComponents\Filament\Actions\SwitchComponentAction::make()]
                 : []),
             ActionGroup::make([
