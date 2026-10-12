@@ -66,6 +66,9 @@ class EditManufacturingOrder extends EditRecord
             UnplanAction::make('unplan'),
             StartAction::make('start'),
             CancelAction::make('cancel'),
+            ...(class_exists(\Webkul\ManufacturingSwitchComponents\Filament\Actions\SwitchComponentAction::class)
+                ? [\Webkul\ManufacturingSwitchComponents\Filament\Actions\SwitchComponentAction::make()]
+                : []),
             ActionGroup::make([
                 PrintMOAction::make(),
                 PrintLabelsAction::make(),

@@ -1,0 +1,25 @@
+{
+    "name": "webkul/manufacturing-switch-components",
+    "description": "Switch / Substitute Components for Manufacturing Orders without altering Master BoM in Aureus ERP",
+    "authors": [
+        {
+            "name": "PT Marel Sukses Pratama",
+            "email": "it@marelsuksespratama.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webkul\\ManufacturingSwitchComponents\\ManufacturingSwitchComponentsServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Webkul\\ManufacturingSwitchComponents\\": "src/",
+            "Webkul\\ManufacturingSwitchComponents\\Database\\Factories\\": "database/factories/",
+            "Webkul\\ManufacturingSwitchComponents\\Database\\Seeders\\": "database/seeders/"
+        }
+    }
+}
