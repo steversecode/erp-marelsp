@@ -97,23 +97,40 @@ class SwitchComponentAction extends Action
 
                     Select::make('replacement_product_id')
                         ->label(__('manufacturing_switch_components::app.modal.fields.replacement_product'))
-                        ->relationship(
-                            'replacementProduct',
-                            'name',
-                            modifyQueryUsing: function (Builder $query, Get $get) use ($order, $activeMoves): void {
-                                $companyId = $order?->company_id ?? current_company_id();
+                        ->options(function (Get $get) use ($order, $activeMoves): array {
+                            $companyId = $order?->company_id ?? current_company_id();
 
-                                $query->where('type', ProductType::GOODS)
-                                    ->where(owned_by_company($companyId));
+                            $query = Product::query()
+                                ->where('type', ProductType::GOODS)
+                                ->where(owned_by_company($companyId));
 
-                                if ($moveId = $get('original_move_id')) {
-                                    $selectedMove = $activeMoves->firstWhere('id', (int) $moveId);
-                                    if ($selectedMove) {
-                                        $query->where('id', '!=', $selectedMove->product_id);
-                                    }
+                            if ($moveId = $get('original_move_id')) {
+                                $selectedMove = $activeMoves->firstWhere('id', (int) $moveId);
+                                if ($selectedMove) {
+                                    $query->where('id', '!=', $selectedMove->product_id);
                                 }
                             }
-                        )
+
+                            return $query->limit(50)->pluck('name', 'id')->all();
+                        })
+                        ->getSearchResultsUsing(function (string $search, Get $get) use ($order, $activeMoves): array {
+                            $companyId = $order?->company_id ?? current_company_id();
+
+                            $query = Product::query()
+                                ->where('type', ProductType::GOODS)
+                                ->where(owned_by_company($companyId))
+                                ->where('name', 'like', "%{$search}%");
+
+                            if ($moveId = $get('original_move_id')) {
+                                $selectedMove = $activeMoves->firstWhere('id', (int) $moveId);
+                                if ($selectedMove) {
+                                    $query->where('id', '!=', $selectedMove->product_id);
+                                }
+                            }
+
+                            return $query->limit(50)->pluck('name', 'id')->all();
+                        })
+                        ->getOptionLabelUsing(fn ($value): ?string => Product::find($value)?->name)
                         ->searchable()
                         ->preload()
                         ->required()
