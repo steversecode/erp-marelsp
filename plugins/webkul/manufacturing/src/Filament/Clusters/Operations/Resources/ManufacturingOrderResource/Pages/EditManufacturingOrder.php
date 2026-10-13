@@ -72,6 +72,15 @@ class EditManufacturingOrder extends EditRecord
             ActionGroup::make([
                 PrintMOAction::make(),
                 PrintLabelsAction::make(),
+                ...(\Webkul\PluginManager\Package::isPluginInstalled('mrp-report')
+                    ? [
+                        \Webkul\MrpReport\Filament\Actions\PrintKkpManufacturingOrderAction::make(),
+                        \Webkul\MrpReport\Filament\Actions\PrintBomBenangAction::make(),
+                        \Webkul\MrpReport\Filament\Actions\PrintAccessoriesBomAction::make(),
+                        \Webkul\MrpReport\Filament\Actions\PrintBonAksesorisAction::make(),
+                        \Webkul\MrpReport\Filament\Actions\PrintProductionOrderMspAction::make(),
+                    ]
+                    : []),
             ])
                 ->label(__('manufacturing::filament/clusters/operations/resources/manufacturing-order/pages/edit-manufacturing-order.header-actions.print.label'))
                 ->icon('heroicon-o-printer')

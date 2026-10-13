@@ -118,10 +118,31 @@ class ManufacturingOrdersTable
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+                ...(\Webkul\PluginManager\Package::isPluginInstalled('mrp-report')
+                    ? [
+                        \Filament\Actions\ActionGroup::make([
+                            \Webkul\MrpReport\Filament\Actions\PrintKkpManufacturingOrderAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\PrintBomBenangAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\PrintAccessoriesBomAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\PrintBonAksesorisAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\PrintProductionOrderMspAction::make(),
+                        ])
+                            ->icon('heroicon-o-printer')
+                            ->color('gray'),
+                    ]
+                    : []),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ...(\Webkul\PluginManager\Package::isPluginInstalled('mrp-report')
+                        ? [
+                            \Webkul\MrpReport\Filament\Actions\BulkPrintKkpManufacturingOrderAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\BulkPrintBomBenangAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\BulkPrintAccessoriesBomAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\BulkPrintBonAksesorisAction::make(),
+                        ]
+                        : []),
                 ]),
             ]);
     }

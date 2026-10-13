@@ -17,4 +17,13 @@ class ViewWorkOrder extends ViewRecord
     {
         return $this->getRecord()->display_name;
     }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ...(\Webkul\PluginManager\Package::isPluginInstalled('mrp-report')
+                ? [\Webkul\MrpReport\Filament\Actions\PrintKkpWorkOrderAction::make()]
+                : []),
+        ];
+    }
 }

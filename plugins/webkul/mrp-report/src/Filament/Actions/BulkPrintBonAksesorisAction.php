@@ -1,0 +1,45 @@
+<?php
+
+namespace Webkul\MrpReport\Filament\Actions;
+
+use Filament\Actions\BulkAction;
+use Filament\Forms\Components\Select;
+use Illuminate\Support\Collection;
+use Webkul\MrpReport\Services\MrpReportService;
+use Webkul\Security\Models\User;
+
+class BulkPrintBonAksesorisAction extends BulkAction
+{
+    public static function getDefaultName(): ?string
+    {
+        return 'mrp_report.bulk_print.bon_aksesoris';
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this
+            ->label(__('mrp_report::app.reports.bon_aksesoris.label'))
+            ->icon('heroicon-o-clipboard-document-check')
+            ->color('gray')
+            ->modalHeading(__('mrp_report::app.reports.bon_aksesoris.modal_title'))
+            ->modalSubmitActionLabel(__('mrp_report::app.actions.print'))
+            ->form([
+                Select::make('mengajukan_id')
+                    ->label(__('mrp_report::app.signatures.mengajukan'))
+                    ->options(fn () => User::query()->pluck('name', 'id'))
+                    ->default(fn () => auth()->id())
+                    ->searchable()
+                    ->preload(),
+                Select::make('mengetahui_1_id')
+                    ->label(__('mrp_report::app.signatures.purchasing'))
+                    ->options(fn () => User::query()->pluck('name', 'id'))
+                    ->searchable()
+                    ->preload(),
+            ])
+            ->action(function (Collection $records, array $data) {
+                return app(MrpReportService::class)->renderBonAksesoris($records, $data);
+            });
+    }
+}

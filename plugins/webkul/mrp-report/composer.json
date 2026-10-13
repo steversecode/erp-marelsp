@@ -1,0 +1,23 @@
+{
+    "name": "webkul/mrp-report",
+    "description": "Comprehensive MRP Reports (KKP Work Order, KKP Manufacturing Order, BoM Benang, Accessories BoM, Bon Aksesoris, and Production Order MSP) for Aureus ERP",
+    "authors": [
+        {
+            "name": "PT Marel Sukses Pratama",
+            "email": "it@marelsuksespratama.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webkul\\MrpReport\\MrpReportServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Webkul\\MrpReport\\": "src/"
+        }
+    }
+}

@@ -245,7 +245,14 @@ class WorkOrdersTable
                     }),
                 ViewAction::make(),
                 EditAction::make(),
+                ...(\Webkul\PluginManager\Package::isPluginInstalled('mrp-report')
+                    ? [\Webkul\MrpReport\Filament\Actions\PrintKkpWorkOrderAction::make()]
+                    : []),
             ])
-            ->bulkActions([]);
+            ->bulkActions([
+                ...(\Webkul\PluginManager\Package::isPluginInstalled('mrp-report')
+                    ? [\Webkul\MrpReport\Filament\Actions\BulkPrintKkpWorkOrderAction::make()]
+                    : []),
+            ]);
     }
 }

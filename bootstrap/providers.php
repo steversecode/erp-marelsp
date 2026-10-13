@@ -28,6 +28,7 @@ use Webkul\Sale\SaleServiceProvider;
 use Webkul\ProductPack\ProductPackServiceProvider;
 use Webkul\SaleProductPack\SaleProductPackServiceProvider;
 use Webkul\ManufacturingSwitchComponents\ManufacturingSwitchComponentsServiceProvider;
+use Webkul\MrpReport\MrpReportServiceProvider;
 use Webkul\Security\SecurityServiceProvider;
 use Webkul\Support\SupportServiceProvider;
 use Webkul\TableViews\TableViewsServiceProvider;
@@ -62,6 +63,7 @@ return [
     SaleServiceProvider::class,
     SaleProductPackServiceProvider::class,
     ManufacturingSwitchComponentsServiceProvider::class,
+    MrpReportServiceProvider::class,
     SecurityServiceProvider::class,
     SupportServiceProvider::class,
     TableViewsServiceProvider::class,
