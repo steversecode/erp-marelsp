@@ -82,13 +82,15 @@ class StockValuation extends Page implements HasForms, HasTable
             $query = $this->getTableQuery();
         }
 
-        $totalValuation = (float) (clone $query)
+        $baseQuery = (clone $query)->reorder();
+
+        $totalValuation = (float) (clone $baseQuery)
             ->selectRaw('SUM(inventories_product_quantities.quantity * COALESCE(products_products.cost, 0)) as aggregate')
             ->value('aggregate') ?: 0.0;
 
-        $totalUnits = (float) (clone $query)->sum('inventories_product_quantities.quantity') ?: 0.0;
+        $totalUnits = (float) (clone $baseQuery)->sum('inventories_product_quantities.quantity') ?: 0.0;
 
-        $totalProducts = (int) (clone $query)
+        $totalProducts = (int) (clone $baseQuery)
             ->distinct('inventories_product_quantities.product_id')
             ->count('inventories_product_quantities.product_id') ?: 0;
 
@@ -174,6 +176,7 @@ class StockValuation extends Page implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->model(ProductQuantity::class)
             ->query($this->getTableQuery())
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([10, 25, 50, 100])
@@ -259,7 +262,7 @@ class StockValuation extends Page implements HasForms, HasTable
                         Sum::make()
                             ->label(__('accounting::filament/clusters/reporting.common.total'))
                             ->using(function ($query): float {
-                                return (float) (clone $query)->selectRaw('SUM(inventories_product_quantities.quantity * COALESCE(products_products.cost, 0)) as aggregate')->value('aggregate');
+                                return (float) (clone $query)->reorder()->selectRaw('SUM(inventories_product_quantities.quantity * COALESCE(products_products.cost, 0)) as aggregate')->value('aggregate') ?: 0.0;
                             })
                             ->money(fn (): string => $this->getCurrencyCode())
                     ),
@@ -283,10 +286,23 @@ class StockValuation extends Page implements HasForms, HasTable
 
                 SelectFilter::make('location')
                     ->label(__('accounting::filament/clusters/reporting.pages.stock-valuation.filters.location'))
-                    ->relationship('location', 'full_name', fn (Builder $q) => $q->where('type', LocationType::INTERNAL))
+                    ->options(fn (): array => Location::query()
+                        ->where('type', LocationType::INTERNAL)
+                        ->where('is_scrap', false)
+                        ->orderBy('name')
+                        ->pluck('full_name', 'id')
+                        ->all()
+                    )
                     ->multiple()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+
+                        return $query->whereIn('inventories_product_quantities.location_id', $data['values']);
+                    }),
 
                 SelectFilter::make('category')
                     ->label(__('accounting::filament/clusters/reporting.pages.stock-valuation.filters.product-category'))
