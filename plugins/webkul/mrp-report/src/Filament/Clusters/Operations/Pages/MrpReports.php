@@ -2,6 +2,7 @@
 
 namespace Webkul\MrpReport\Filament\Clusters\Operations\Pages;
 
+use BackedEnum;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -23,7 +24,7 @@ class MrpReports extends Page implements HasForms
 
     protected static ?string $cluster = Operations::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-chart-bar';
 
     protected static ?int $navigationSort = 10;
 
