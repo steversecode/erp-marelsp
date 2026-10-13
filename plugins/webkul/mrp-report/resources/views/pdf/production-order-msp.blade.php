@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Production Order MSP - {{ $order->name }}</title>
+    <title>Production Order MSP</title>
     <style type="text/css">
         @page {
             size: a4 portrait;
@@ -148,9 +148,10 @@
             font-weight: bold;
         }
     </style>
+</head>
 <body>
 @php
-    $items = isset($ordersData) ? $ordersData : [['order' => $order, 'benangComponents' => $benangComponents]];
+    $items = isset($ordersData) ? $ordersData : [['order' => $order ?? null, 'benangComponents' => $benangComponents ?? []]];
 @endphp
 
 @foreach ($items as $idx => $item)

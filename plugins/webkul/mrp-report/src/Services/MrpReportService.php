@@ -623,6 +623,7 @@ class MrpReportService
 
         $pdf = Pdf::loadView('mrp_report::pdf.production-order-msp', [
             'ordersData' => $ordersData,
+            'order'      => $ordersCollection->first(),
             'signatures' => $signatures,
             'service'    => $this,
         ]);
