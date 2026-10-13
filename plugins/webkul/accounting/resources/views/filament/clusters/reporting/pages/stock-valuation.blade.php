@@ -4,80 +4,181 @@
             $stats = $this->getStats();
         @endphp
 
-        {{-- Top Summary Metric Cards (Square Layout) --}}
-        <div style="display: flex; flex-wrap: wrap; gap: 1.25rem;" class="flex flex-wrap gap-5">
-            {{-- Total Valuation Card --}}
-            <div style="flex: 0 0 270px; width: 270px; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between;" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-xs transition hover:shadow-md dark:border-white/10 dark:bg-gray-900">
-                <div class="flex items-center justify-between">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
-                        <x-filament::icon icon="heroicon-o-banknotes" class="h-6 w-6" />
+        {{-- Scoped Luxury KPI Styles --}}
+        <style>
+            .stock-kpi-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.25rem;
+                margin-bottom: 1.5rem;
+            }
+            .stock-kpi-card {
+                flex: 1 1 240px;
+                max-width: 320px;
+                min-width: 240px;
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                padding: 1.25rem 1.25rem 1rem 1.25rem;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+                transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+                box-sizing: border-box;
+            }
+            .stock-kpi-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+                border-color: #cbd5e1;
+            }
+            .dark .stock-kpi-card {
+                background: #111827;
+                border-color: rgba(255, 255, 255, 0.08);
+                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+            }
+            .dark .stock-kpi-card:hover {
+                border-color: rgba(255, 255, 255, 0.16);
+            }
+            .kpi-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+            }
+            .kpi-icon-pill {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            .kpi-chip {
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 3px 9px;
+                border-radius: 9999px;
+                letter-spacing: 0.02em;
+            }
+            .kpi-title {
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: #64748b;
+                margin: 0 0 0.25rem 0;
+            }
+            .dark .kpi-title {
+                color: #94a3b8;
+            }
+            .kpi-number {
+                font-size: 1.6rem;
+                font-weight: 800;
+                letter-spacing: -0.025em;
+                line-height: 1.2;
+                margin: 0;
+            }
+            .kpi-desc {
+                margin-top: 1rem;
+                padding-top: 0.65rem;
+                border-top: 1px solid #f1f5f9;
+                font-size: 0.72rem;
+                color: #64748b;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                line-height: 1.35;
+            }
+            .dark .kpi-desc {
+                border-top-color: rgba(255, 255, 255, 0.06);
+                color: #94a3b8;
+            }
+            .kpi-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+        </style>
+
+        {{-- Top Summary Metric Cards (Neat Square Executive Layout) --}}
+        <div class="stock-kpi-container">
+            {{-- Card 1: Total Valuation --}}
+            <div class="stock-kpi-card">
+                <div class="kpi-head">
+                    <div class="kpi-icon-pill" style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #059669;">
+                        <x-filament::icon icon="heroicon-o-banknotes" class="h-5 w-5" />
                     </div>
-                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-                        Valuation
+                    <span class="kpi-chip" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;">
+                        Valuasi
                     </span>
                 </div>
 
-                <div class="my-2">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <div>
+                    <p class="kpi-title">
                         {{ __('accounting::filament/clusters/reporting.pages.stock-valuation.metrics.total-valuation') }}
                     </p>
-                    <p class="mt-1 text-2xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400">
+                    <p class="kpi-number" style="color: #059669;">
                         {{ $stats['currency_code'] }} {{ number_format($stats['total_valuation'], 2, ',', '.') }}
                     </p>
                 </div>
 
-                <div class="border-t border-gray-100 pt-2 text-xs text-gray-500 dark:border-white/5 dark:text-gray-400">
-                    Nilai persediaan di seluruh lokasi internal
+                <div class="kpi-desc">
+                    <span class="kpi-dot" style="background: #10b981;"></span>
+                    <span>Nilai seluruh persediaan gudang internal</span>
                 </div>
             </div>
 
-            {{-- Total Units Card --}}
-            <div style="flex: 0 0 270px; width: 270px; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between;" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-xs transition hover:shadow-md dark:border-white/10 dark:bg-gray-900">
-                <div class="flex items-center justify-between">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
-                        <x-filament::icon icon="heroicon-o-cube" class="h-6 w-6" />
+            {{-- Card 2: Total Units --}}
+            <div class="stock-kpi-card">
+                <div class="kpi-head">
+                    <div class="kpi-icon-pill" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #2563eb;">
+                        <x-filament::icon icon="heroicon-o-cube" class="h-5 w-5" />
                     </div>
-                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                    <span class="kpi-chip" style="background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd;">
                         On-Hand
                     </span>
                 </div>
 
-                <div class="my-2">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <div>
+                    <p class="kpi-title">
                         {{ __('accounting::filament/clusters/reporting.pages.stock-valuation.metrics.total-units') }}
                     </p>
-                    <p class="mt-1 text-2xl font-extrabold tracking-tight text-blue-600 dark:text-blue-400">
+                    <p class="kpi-number" style="color: #2563eb;">
                         {{ number_format($stats['total_units'], 2, ',', '.') }}
                     </p>
                 </div>
 
-                <div class="border-t border-gray-100 pt-2 text-xs text-gray-500 dark:border-white/5 dark:text-gray-400">
-                    Total kuantitas fisik on-hand yang tersedia
+                <div class="kpi-desc">
+                    <span class="kpi-dot" style="background: #3b82f6;"></span>
+                    <span>Total kuantitas fisik yang tersedia</span>
                 </div>
             </div>
 
-            {{-- Total SKUs Card --}}
-            <div style="flex: 0 0 270px; width: 270px; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between;" class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-xs transition hover:shadow-md dark:border-white/10 dark:bg-gray-900">
-                <div class="flex items-center justify-between">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400">
-                        <x-filament::icon icon="heroicon-o-tag" class="h-6 w-6" />
+            {{-- Card 3: Total Products --}}
+            <div class="stock-kpi-card">
+                <div class="kpi-head">
+                    <div class="kpi-icon-pill" style="background: #faf5ff; border: 1px solid #e9d5ff; color: #7c3aed;">
+                        <x-filament::icon icon="heroicon-o-tag" class="h-5 w-5" />
                     </div>
-                    <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300">
-                        Products
+                    <span class="kpi-chip" style="background: #fdf4ff; color: #86198f; border: 1px solid #f5d0fe;">
+                        Produk
                     </span>
                 </div>
 
-                <div class="my-2">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <div>
+                    <p class="kpi-title">
                         {{ __('accounting::filament/clusters/reporting.pages.stock-valuation.metrics.total-products') }}
                     </p>
-                    <p class="mt-1 text-2xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400">
-                        {{ number_format($stats['total_products'], 0, ',', '.') }} <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">SKU</span>
+                    <p class="kpi-number" style="color: #7c3aed;">
+                        {{ number_format($stats['total_products'], 0, ',', '.') }} <span style="font-size: 0.95rem; font-weight: 600; color: #64748b;">SKU</span>
                     </p>
                 </div>
 
-                <div class="border-t border-gray-100 pt-2 text-xs text-gray-500 dark:border-white/5 dark:text-gray-400">
-                    Jumlah produk unik dengan stok aktif
+                <div class="kpi-desc">
+                    <span class="kpi-dot" style="background: #8b5cf6;"></span>
+                    <span>Jumlah variasi produk aktif tersimpan</span>
                 </div>
             </div>
         </div>
