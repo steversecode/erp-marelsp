@@ -219,5 +219,39 @@ return [
                 ],
             ],
         ],
+        'stock-valuation' => [
+            'navigation' => [
+                'title' => 'Stock Valuation',
+                'group' => 'Stock Reports',
+            ],
+            'actions' => [
+                'export-excel' => 'Export Excel',
+                'export-pdf'   => 'Export PDF',
+            ],
+            'metrics' => [
+                'total-valuation' => 'Total Stock Value',
+                'total-units'     => 'Total Units In Stock',
+                'total-products'  => 'Total Products (SKUs)',
+            ],
+            'columns' => [
+                'product'     => 'Product',
+                'sku'         => 'SKU',
+                'category'    => 'Category',
+                'warehouse'   => 'Warehouse',
+                'location'    => 'Location',
+                'on-hand'     => 'On Hand',
+                'uom'         => 'UoM',
+                'unit-cost'   => 'Unit Cost',
+                'total-value' => 'Total Value',
+            ],
+            'filters' => [
+                'warehouse'        => 'Warehouse',
+                'location'         => 'Location',
+                'product-category' => 'Product Category',
+                'cost-status'      => 'Cost Configuration',
+                'with-cost'        => 'Has Unit Cost',
+                'zero-cost'        => 'Zero / Missing Cost',
+            ],
+        ],
     ],
 ];
