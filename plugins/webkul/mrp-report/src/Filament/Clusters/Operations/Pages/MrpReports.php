@@ -28,7 +28,7 @@ class MrpReports extends Page implements HasForms
 
     protected static ?int $navigationSort = 10;
 
-    protected static string $view = 'mrp_report::filament.clusters.operations.pages.mrp-reports';
+    protected string $view = 'mrp_report::filament.clusters.operations.pages.mrp-reports';
 
     public ?string $report_type = 'bom_benang';
 
