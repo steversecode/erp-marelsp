@@ -176,7 +176,6 @@ class StockValuation extends Page implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->model(ProductQuantity::class)
             ->query($this->getTableQuery())
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([10, 25, 50, 100])
