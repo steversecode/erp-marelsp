@@ -596,31 +596,42 @@ class MrpReportService
 
     /**
      * Render Production Order MSP PDF (Standard MO layout + Benang components + Signatures).
+     * Supports single Order or a collection/iterable of Orders for batch printing.
      */
-    public function renderProductionOrderMsp(Order $order, array $signatureData = []): StreamedResponse
+    public function renderProductionOrderMsp(Order|iterable $orders, array $signatureData = []): StreamedResponse
     {
-        $order->loadMissing([
-            'workOrders.operation',
-            'workOrders.workCenter',
-            'product',
-            'uom',
-            'assignedUser',
-            'company',
-        ]);
+        $ordersCollection = $orders instanceof Order ? collect([$orders]) : ($orders instanceof Collection ? $orders : collect($orders));
 
-        $benangComponents = $this->getBenangComponents(collect([$order]));
+        $ordersData = [];
+        foreach ($ordersCollection as $ord) {
+            $ord->loadMissing([
+                'workOrders.operation',
+                'workOrders.workCenter',
+                'product',
+                'uom',
+                'assignedUser',
+                'company',
+            ]);
+
+            $ordersData[] = [
+                'order'            => $ord,
+                'benangComponents' => $this->getBenangComponents(collect([$ord])),
+            ];
+        }
+
         $signatures = $this->resolveSignatures($signatureData);
 
         $pdf = Pdf::loadView('mrp_report::pdf.production-order-msp', [
-            'order'            => $order,
-            'benangComponents' => $benangComponents,
-            'signatures'       => $signatures,
-            'service'          => $this,
+            'ordersData' => $ordersData,
+            'signatures' => $signatures,
+            'service'    => $this,
         ]);
 
         $pdf->setPaper('a4', 'portrait');
 
-        $filename = 'Production-Order-MSP-'.str_replace('/', '_', $order->name).'.pdf';
+        $filename = count($ordersCollection) === 1
+            ? 'Production-Order-MSP-'.str_replace('/', '_', $ordersCollection->first()->name).'.pdf'
+            : 'Production-Order-MSP-Bulk-'.date('YmdHis').'.pdf';
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();

@@ -141,6 +141,7 @@ class ManufacturingOrdersTable
                             \Webkul\MrpReport\Filament\Actions\BulkPrintBomBenangAction::make(),
                             \Webkul\MrpReport\Filament\Actions\BulkPrintAccessoriesBomAction::make(),
                             \Webkul\MrpReport\Filament\Actions\BulkPrintBonAksesorisAction::make(),
+                            \Webkul\MrpReport\Filament\Actions\BulkPrintProductionOrderMspAction::make(),
                         ]
                         : []),
                 ]),

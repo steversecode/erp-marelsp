@@ -195,7 +195,7 @@ class MrpReports extends Page implements HasForms
             'accessories_bom'      => $service->renderAccessoriesBom($orders, $data),
             'bon_aksesoris'        => $service->renderBonAksesoris($orders, $data),
             'kkp_mo'               => $service->renderBulkKkpManufacturingOrder($orders),
-            'production_order_msp' => $service->renderProductionOrderMsp($orders->first(), $data),
+            'production_order_msp' => $service->renderProductionOrderMsp($orders, $data),
             default                => null,
         };
     }

@@ -148,8 +148,17 @@
             font-weight: bold;
         }
     </style>
-</head>
 <body>
+@php
+    $items = isset($ordersData) ? $ordersData : [['order' => $order, 'benangComponents' => $benangComponents]];
+@endphp
+
+@foreach ($items as $idx => $item)
+@php
+    $order = $item['order'];
+    $benangComponents = $item['benangComponents'];
+@endphp
+<div class="page-container" style="{{ $idx < count($items) - 1 ? 'page-break-after: always;' : '' }}">
     <!-- Top Bar -->
     <div class="header-bar">
         <table>
@@ -309,5 +318,7 @@
             </tbody>
         </table>
     </div>
+</div>
+@endforeach
 </body>
 </html>
