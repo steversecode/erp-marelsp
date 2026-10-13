@@ -237,7 +237,7 @@ class MrpReportService
             ]);
 
             foreach ($order->rawMaterialMoves as $move) {
-                if ($move->state === MoveState::CANCEL) {
+                if ($move->state === MoveState::CANCELED || $move->state === 'canceled') {
                     continue;
                 }
 
@@ -288,7 +288,7 @@ class MrpReportService
             ]);
 
             foreach ($order->rawMaterialMoves as $move) {
-                if ($move->state === MoveState::CANCEL) {
+                if ($move->state === MoveState::CANCELED || $move->state === 'canceled') {
                     continue;
                 }
 
@@ -361,7 +361,7 @@ class MrpReportService
             ]);
 
             foreach ($order->rawMaterialMoves as $move) {
-                if ($move->state === MoveState::CANCEL) {
+                if ($move->state === MoveState::CANCELED || $move->state === 'canceled') {
                     continue;
                 }
 
