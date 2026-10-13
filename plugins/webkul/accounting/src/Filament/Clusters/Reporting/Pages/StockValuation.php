@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Webkul\Accounting\Filament\Clusters\Reporting;
 use Webkul\Accounting\Filament\Clusters\Reporting\Pages\Exports\StockValuationExport;
 use Webkul\Inventory\Enums\LocationType;
+use Webkul\Inventory\Models\Location;
 use Webkul\Inventory\Models\ProductQuantity;
 use Webkul\Inventory\Models\Warehouse;
 use Webkul\Product\Models\Category;
