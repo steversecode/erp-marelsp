@@ -85,7 +85,9 @@ class StockValuation extends Page implements HasForms, HasTable
 
         $baseQuery = (clone $query)->reorder();
 
-        $totalValuation = (float) (clone $baseQuery)
+        $cloneForVal = clone $baseQuery;
+        $cloneForVal->getQuery()->columns = null;
+        $totalValuation = (float) $cloneForVal
             ->selectRaw('SUM(inventories_product_quantities.quantity * COALESCE(products_products.cost, 0)) as aggregate')
             ->value('aggregate') ?: 0.0;
 
@@ -161,6 +163,8 @@ class StockValuation extends Page implements HasForms, HasTable
     {
         return ProductQuantity::query()
             ->select('inventories_product_quantities.*')
+            ->selectRaw('COALESCE(products_products.cost, 0) as unit_cost')
+            ->selectRaw('(inventories_product_quantities.quantity * COALESCE(products_products.cost, 0)) as total_value')
             ->leftJoin('products_products', 'products_products.id', '=', 'inventories_product_quantities.product_id')
             ->with([
                 'product.category',
@@ -242,28 +246,19 @@ class StockValuation extends Page implements HasForms, HasTable
 
                 TextColumn::make('unit_cost')
                     ->label(__('accounting::filament/clusters/reporting.pages.stock-valuation.columns.unit-cost'))
-                    ->state(fn (ProductQuantity $record): float => (float) ($record->product?->cost ?? 0))
                     ->money(fn (): string => $this->getCurrencyCode())
-                    ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy('products_products.cost', $direction);
-                    })
+                    ->sortable()
                     ->alignEnd(),
 
                 TextColumn::make('total_value')
                     ->label(__('accounting::filament/clusters/reporting.pages.stock-valuation.columns.total-value'))
-                    ->state(fn (ProductQuantity $record): float => (float) $record->quantity * (float) ($record->product?->cost ?? 0))
                     ->money(fn (): string => $this->getCurrencyCode())
                     ->weight(FontWeight::Bold)
-                    ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderByRaw('(inventories_product_quantities.quantity * COALESCE(products_products.cost, 0)) '.$direction);
-                    })
+                    ->sortable()
                     ->alignEnd()
                     ->summarize(
                         Sum::make()
                             ->label(__('accounting::filament/clusters/reporting.common.total'))
-                            ->using(function ($query): float {
-                                return (float) (clone $query)->reorder()->selectRaw('SUM(inventories_product_quantities.quantity * COALESCE(products_products.cost, 0)) as aggregate')->value('aggregate') ?: 0.0;
-                            })
                             ->money(fn (): string => $this->getCurrencyCode())
                     ),
             ])
